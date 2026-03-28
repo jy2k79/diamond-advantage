@@ -371,7 +371,12 @@ def check_password():
     with col2:
         password = st.text_input("Password", type="password", label_visibility="collapsed")
         if password:
-            if password == st.secrets["password"]:
+            try:
+                correct = st.secrets["password"]
+            except (KeyError, FileNotFoundError):
+                st.error("Password not configured. Add it in Streamlit Cloud → Settings → Secrets.")
+                return False
+            if password == correct:
                 st.session_state.authenticated = True
                 st.rerun()
             else:
