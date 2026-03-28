@@ -718,7 +718,7 @@ with chart_col1:
         height=350,
         margin=dict(l=20, r=20, t=40, b=20),
         title=dict(text="Power Breakdown (kW)", font=dict(size=14, color=DF_WHITE)),
-        yaxis=dict(showgrid=True, gridcolor=f"{DF_MID_GREY}80", zeroline=False,
+        yaxis=dict(showgrid=True, gridcolor="rgba(58,54,54,0.5)", zeroline=False,
                    tickfont=dict(color=DF_GREY)),
         xaxis=dict(tickfont=dict(color=DF_WHITE, size=12)),
         legend=dict(
@@ -906,7 +906,7 @@ fig_proj.add_trace(go.Scatter(
     mode='lines+markers',
     marker=dict(size=8, color=DF_ORANGE),
     fill='tonexty',
-    fillcolor=f'{DF_ORANGE}15',
+    fillcolor="rgba(255,85,50,0.08)",
     hovertemplate='%{x}: %{y:,.0f} TWh<extra>With Diamond</extra>',
 ))
 
@@ -925,7 +925,7 @@ fig_proj.update_layout(
         dtick=1,
     ),
     yaxis=dict(
-        showgrid=True, gridcolor=f"{DF_MID_GREY}80", zeroline=False,
+        showgrid=True, gridcolor="rgba(58,54,54,0.5)", zeroline=False,
         tickfont=dict(color=DF_GREY), ticksuffix=" TWh",
     ),
     legend=dict(
@@ -946,7 +946,7 @@ fig_proj.add_annotation(
     bordercolor=DF_ORANGE,
     borderwidth=1,
     borderpad=6,
-    bgcolor=f"{DF_BLACK}E0",
+    bgcolor="rgba(34,30,30,0.88)",
 )
 
 st.plotly_chart(fig_proj, use_container_width=True, config={'displayModeBar': False})
