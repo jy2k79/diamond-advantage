@@ -348,6 +348,41 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 
+# ──────────────────────────────────────────────────────────────
+# PASSWORD GATE
+# ──────────────────────────────────────────────────────────────
+def check_password():
+    """Returns True if the user has entered the correct password."""
+    if "authenticated" not in st.session_state:
+        st.session_state.authenticated = False
+
+    if st.session_state.authenticated:
+        return True
+
+    st.markdown(f"""
+    <div style="max-width: 400px; margin: 120px auto 0 auto; text-align: center;">
+        <span class="df-badge">Diamond Foundry</span>
+        <h2 style="margin-top: 16px; font-size: 1.6rem;">The Diamond Advantage</h2>
+        <p style="color: {DF_GREY}; font-size: 0.9rem;">Enter password to continue</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    col1, col2, col3 = st.columns([1, 1, 1])
+    with col2:
+        password = st.text_input("Password", type="password", label_visibility="collapsed")
+        if password:
+            if password == st.secrets["password"]:
+                st.session_state.authenticated = True
+                st.rerun()
+            else:
+                st.error("Incorrect password")
+    return False
+
+
+if not check_password():
+    st.stop()
+
+
 # ══════════════════════════════════════════════════════════════
 #  SECTION 0 — HERO
 # ══════════════════════════════════════════════════════════════
