@@ -184,6 +184,7 @@ st.markdown(f"""
         border: none;
         border-radius: 16px;
         padding: 24px 28px;
+        min-height: 130px;
     }}
     [data-testid="stMetricValue"] {{
         color: {DF_WHITE} !important;
@@ -255,10 +256,10 @@ st.markdown(f"""
         color: {DF_WHITE};
     }}
 
-    /* ── Orange-tinted card (savings banner) ── */
-    .df-orange-card {{
-        background: linear-gradient(135deg, #3D1A10, #2D1510);
-        border: 1px solid rgba(255,85,50,0.15);
+    /* ── Savings banner (white bg, thin border — df.com style) ── */
+    .df-savings-card {{
+        background: {DF_WHITE};
+        border: 1px solid {DF_BORDER};
         border-radius: 16px;
         padding: 36px 32px;
     }}
@@ -295,6 +296,7 @@ st.markdown(f"""
         padding: 28px 20px;
         text-align: center;
         height: 100%;
+        box-sizing: border-box;
     }}
     .df-step-title {{
         font-size: 15px;
@@ -388,19 +390,19 @@ st.markdown(f"""
         margin-top: -12px;
     }}
 
-    /* ── Impact numbers (savings banner) ── */
+    /* ── Impact numbers (savings banner — on white) ── */
     .df-impact-num {{
         font-family: 'Inter', sans-serif;
         font-size: 36px;
         font-weight: 400;
-        color: {DF_ORANGE};
-        letter-spacing: -0.03em;
+        color: {DF_BLACK};
+        letter-spacing: -0.05em;
         line-height: 1;
     }}
     .df-impact-label {{
         font-family: 'IBM Plex Mono', monospace;
         font-size: 12px;
-        color: rgba(255,255,255,0.4);
+        color: {DF_BODY};
         margin-top: 6px;
         text-transform: uppercase;
     }}
@@ -494,31 +496,30 @@ st.markdown("""
 
 st.markdown(f"""
 <p class="df-body" style="margin-top:24px;">
-AI is hitting a wall — not of intelligence, but of heat.
-Every generation of chips runs hotter, drinks more power, and demands more cooling.
-Diamond Foundry is solving this by replacing traditional substrates with
-single-crystal diamond — the most thermally conductive material on Earth —
-grown from captured methane greenhouse gas.
+AI is hitting a wall. Not of intelligence, but of heat.
+Every generation of chips runs hotter, drinks more power, demands more cooling.
+Diamond Foundry replaces traditional substrates with single-crystal diamond,
+the most thermally conductive material on Earth. Grown from captured methane greenhouse gas.
 </p>
 """, unsafe_allow_html=True)
 
 # Hero stats — clean, typography-driven (like df.com)
-st.markdown("<br>", unsafe_allow_html=True)
-hero_cols = st.columns(4)
 hero_data = [
     ("17,200×", "Semiconductor figure of merit vs silicon"),
     ("2,200+", "W/mK thermal conductivity"),
     ("52°C", "Chip temperature reduction"),
     ("3.7×", "Higher power density"),
 ]
-for col, (val, label) in zip(hero_cols, hero_data):
-    with col:
-        st.markdown(f"""
-        <div style="padding:12px 0;">
-            <div class="df-stat-num">{val}</div>
-            <div class="df-stat-label">{label}</div>
-        </div>
-        """, unsafe_allow_html=True)
+hero_html = ""
+for val, label in hero_data:
+    hero_html += f"""
+    <div style="flex:1;min-width:180px;padding:20px 0;">
+        <div class="df-stat-num">{val}</div>
+        <div class="df-stat-label">{label}</div>
+    </div>
+    """
+st.markdown(f'<div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:16px;">{hero_html}</div>',
+            unsafe_allow_html=True)
 
 st.markdown("---")
 
@@ -530,30 +531,31 @@ st.markdown("---")
 st.markdown('<div class="df-label">The Problem</div>', unsafe_allow_html=True)
 st.markdown("## The AI Infrastructure Crisis")
 
-crisis_cols = st.columns(3)
 crisis_data = [
     ("bolt", "Power Hungry",
-     "Global data centers consumed ~460 TWh in 2024 — "
-     "roughly 2% of global electricity. AI workloads are projected to push this past "
+     "Global data centers consumed ~460 TWh in 2024. "
+     "Roughly 2% of global electricity. AI workloads are projected to push this past "
      "1,000 TWh by 2028."),
     ("thermometer", "Heat Wall",
      "Modern AI chips like NVIDIA's B200 push 1,000W per GPU. "
-     "Traditional silicon substrates can't dissipate this heat fast enough, "
-     "forcing chips to throttle and waste energy on cooling."),
+     "Traditional silicon substrates can't dissipate this heat fast enough. "
+     "Chips throttle. Energy is wasted on cooling."),
     ("droplet", "Water & Carbon Cost",
      "A single large AI data center can consume 5+ million gallons "
-     "of water daily for cooling. The carbon footprint of training one large AI model "
+     "of water daily for cooling. Training one large AI model "
      "can exceed 300 tons of CO₂."),
 ]
-for col, (icon, title, desc) in zip(crisis_cols, crisis_data):
-    with col:
-        st.markdown(f"""
-        <div style="padding:24px 0;">
-            <div style="margin-bottom:16px;">{svg_icon(icon, 28, "rgba(34,30,30,0.3)")}</div>
-            <div style="font-size:18px;font-weight:500;color:{DF_BLACK};margin-bottom:12px;">{title}</div>
-            <div style="font-size:16px;color:{DF_BODY};line-height:1.7;">{desc}</div>
-        </div>
-        """, unsafe_allow_html=True)
+crisis_html = ""
+for icon, title, desc in crisis_data:
+    crisis_html += f"""
+    <div style="flex:1;min-width:250px;padding:24px 0;">
+        <div style="margin-bottom:16px;">{svg_icon(icon, 28, "rgba(34,30,30,0.3)")}</div>
+        <div style="font-size:18px;font-weight:500;color:{DF_BLACK};margin-bottom:12px;">{title}</div>
+        <div style="font-size:16px;color:{DF_BODY};line-height:1.7;">{desc}</div>
+    </div>
+    """
+st.markdown(f'<div style="display:flex;gap:32px;flex-wrap:wrap;">{crisis_html}</div>',
+            unsafe_allow_html=True)
 
 # Thermal conductivity chart
 st.markdown("<br>", unsafe_allow_html=True)
@@ -606,6 +608,41 @@ traditional silicon substrates to Diamond Foundry's single-crystal diamond techn
 """, unsafe_allow_html=True)
 
 
+# Inject JS to make sliders fire updates during drag (debounced)
+st.markdown("""
+<script>
+(function() {
+    // Wait for sliders to mount, then attach live-drag listeners
+    const DEBOUNCE_MS = 120;
+    let timers = {};
+
+    function attachLiveDrag() {
+        const sliders = document.querySelectorAll('[data-baseweb="slider"] div[role="slider"]');
+        sliders.forEach((thumb, idx) => {
+            if (thumb.dataset.liveDrag) return;
+            thumb.dataset.liveDrag = "true";
+
+            // Watch for aria-valuenow changes during drag via MutationObserver
+            const observer = new MutationObserver(() => {
+                clearTimeout(timers[idx]);
+                timers[idx] = setTimeout(() => {
+                    // Simulate mouseup to trigger Streamlit value commit
+                    thumb.dispatchEvent(new MouseEvent('mouseup', {bubbles: true}));
+                }, DEBOUNCE_MS);
+            });
+            observer.observe(thumb, {attributes: true, attributeFilter: ['aria-valuenow']});
+        });
+    }
+
+    // Re-attach after Streamlit re-renders
+    const bodyObserver = new MutationObserver(() => { setTimeout(attachLiveDrag, 200); });
+    bodyObserver.observe(document.body, {childList: true, subtree: true});
+    setTimeout(attachLiveDrag, 500);
+})();
+</script>
+""", unsafe_allow_html=True)
+
+
 @st.fragment
 def calculator_fragment():
     """Calculator wrapped in st.fragment for real-time slider updates."""
@@ -624,7 +661,7 @@ def calculator_fragment():
             ("Efficient air (PUE 1.3)", 1.3),
             ("Liquid-cooled (PUE 1.15)", 1.15),
         ], format_func=lambda x: x[0], index=0,
-           help="Power Usage Effectiveness — cooling overhead")
+           help="Power Usage Effectiveness. How much overhead goes to cooling.")
         pue_val = pue[1]
 
     # ── Calculations ──
@@ -707,8 +744,8 @@ def calculator_fragment():
 
     # ── Savings banner ──
     st.markdown(f"""
-    <div class="df-orange-card" style="margin-top:28px;">
-        <div class="df-label" style="text-align:center;color:rgba(255,255,255,0.4);">Annual Savings with Diamond Foundry</div>
+    <div class="df-savings-card" style="margin-top:28px;">
+        <div class="df-label" style="text-align:center;">Annual Savings with Diamond Foundry</div>
         <div style="display:flex;justify-content:space-around;text-align:center;margin-top:16px;flex-wrap:wrap;">
             <div style="padding:8px 16px;">
                 <div class="df-impact-num">{saved_mwh:,.0f}</div>
@@ -805,43 +842,47 @@ st.markdown('<div class="df-label">The Process</div>', unsafe_allow_html=True)
 st.markdown("## From Greenhouse Gas to Diamond")
 st.markdown(f"""
 <p class="df-body" style="margin-bottom:32px;">
-Diamond Foundry doesn't mine diamonds — it crystallizes them from methane,
-a potent greenhouse gas. Using proprietary plasma reactors powered by green energy,
-DF transforms a climate problem into the world's most advanced thermal substrate.
+Diamond Foundry doesn't mine diamonds. It crystallizes them from methane,
+a potent greenhouse gas. Proprietary plasma reactors powered by green energy
+transform a climate problem into the world's most advanced thermal substrate.
 </p>
 """, unsafe_allow_html=True)
 
-# Process steps
+# Process steps — rendered as single HTML flexbox for proper sizing
 steps = [
     ("factory", "Methane Capture",
-     "CH₄ greenhouse gas is sourced as the carbon feedstock — turning a climate liability into raw material."),
+     "CH₄ greenhouse gas sourced as carbon feedstock. A climate liability becomes raw material."),
     ("zap", "Plasma Reactor",
-     "DF's 10th-gen reactors achieve 150× higher productivity, breaking methane into atomic carbon."),
+     "10th-gen reactors at 150× productivity. Methane broken into atomic carbon."),
     ("diamond", "Crystal Growth",
-     "Carbon atoms self-assemble into perfect single-crystal diamond via DF's patented heteroepitaxy."),
+     "Carbon atoms self-assemble into single-crystal diamond. Patented heteroepitaxy."),
     ("layers", "Wafer Finishing",
-     "Diamond ingots are polished to angstrom-level flatness, then atomically bonded to silicon or SiC."),
+     "Polished to angstrom-level flatness. Atomically bonded to silicon or SiC."),
     ("cpu", "AI-Ready Substrate",
-     "The SCD wafer conducts heat 14.7× better than silicon — enabling the next generation of AI chips."),
+     "SCD wafer conducts heat 14.7× better than silicon. Next-gen AI chips, enabled."),
 ]
 
-p_cols = st.columns(9)
-col_idx = 0
+step_html_items = []
 for i, (icon, title, desc) in enumerate(steps):
-    with p_cols[col_idx]:
-        st.markdown(f"""
-        <div class="df-step">
-            <div>{svg_icon(icon, 28, DF_WHITE)}</div>
-            <div class="df-step-title">{title}</div>
-            <div class="df-step-desc">{desc}</div>
-        </div>
-        """, unsafe_allow_html=True)
-    col_idx += 1
+    step_html_items.append(f"""
+    <div class="df-step" style="flex:1;min-width:160px;">
+        <div>{svg_icon(icon, 28, DF_WHITE)}</div>
+        <div class="df-step-title">{title}</div>
+        <div class="df-step-desc">{desc}</div>
+    </div>
+    """)
     if i < len(steps) - 1:
-        with p_cols[col_idx]:
-            st.markdown(f'<div class="df-step-arrow">{svg_icon("arrow-right", 20, "rgba(34,30,30,0.15)")}</div>',
-                        unsafe_allow_html=True)
-        col_idx += 1
+        step_html_items.append(f"""
+        <div style="display:flex;align-items:center;padding:0 4px;color:rgba(255,255,255,0.2);flex-shrink:0;">
+            {svg_icon("arrow-right", 18, "rgba(34,30,30,0.15)")}
+        </div>
+        """)
+
+st.markdown(f"""
+<div style="display:flex;gap:8px;align-items:stretch;">
+    {"".join(step_html_items)}
+</div>
+""", unsafe_allow_html=True)
 
 # Carbon sequestration callout
 st.markdown(f"""
@@ -850,12 +891,12 @@ st.markdown(f"""
         Crystallizing Greenhouse Gas into Single-Crystal Diamond
     </div>
     <div style="font-size:15px;color:rgba(255,255,255,0.4);max-width:600px;margin:0 auto;line-height:1.7;">
-        Every diamond wafer Diamond Foundry produces permanently locks carbon atoms
-        into the hardest, most thermally conductive material known to science —
-        powered by hydroelectric and solar energy.
+        Every diamond wafer permanently locks carbon atoms
+        into the hardest, most thermally conductive material known to science.
+        Powered by hydroelectric and solar energy.
     </div>
-    <div style="display:flex;justify-content:center;gap:56px;margin-top:28px;">
-        <div>
+    <div style="display:flex;justify-content:center;gap:56px;margin-top:28px;flex-wrap:wrap;">
+        <div style="text-align:center;">
             <div style="font-size:32px;font-weight:400;color:{DF_WHITE};letter-spacing:-0.03em;">97%</div>
             <div class="df-impact-label">of global SCD capacity</div>
         </div>
@@ -896,7 +937,6 @@ g_water_bgal = g_cooling_twh * 1e6 * WATER_M3_PER_MWH * 264.172 / 1e9
 g_homes = g_saved_twh * 1e6 / 10.5
 g_cars = g_co2_mt * 1e6 / 4.6
 
-g_cols = st.columns(4)
 global_stats = [
     (f"{g_saved_twh:.1f}", "TWh", "Energy saved annually",
      "Equivalent to powering a small country"),
@@ -907,16 +947,23 @@ global_stats = [
     (f"{g_homes/1e6:.1f}M", "homes", "Equivalent energy freed",
      "Redirected from cooling to useful compute"),
 ]
-for col, (num, unit, label, sublabel) in zip(g_cols, global_stats):
-    with col:
-        st.markdown(f"""
-        <div class="df-global-card">
-            <div class="df-global-num">{num}</div>
-            <div class="df-global-unit">{unit}</div>
-            <div class="df-global-label">{label}</div>
-            <div class="df-global-sub">{sublabel}</div>
-        </div>
-        """, unsafe_allow_html=True)
+
+global_cards_html = ""
+for num, unit, label, sublabel in global_stats:
+    global_cards_html += f"""
+    <div class="df-global-card" style="flex:1;min-width:200px;">
+        <div class="df-global-num">{num}</div>
+        <div class="df-global-unit">{unit}</div>
+        <div class="df-global-label">{label}</div>
+        <div class="df-global-sub">{sublabel}</div>
+    </div>
+    """
+
+st.markdown(f"""
+<div style="display:flex;gap:16px;flex-wrap:wrap;">
+    {global_cards_html}
+</div>
+""", unsafe_allow_html=True)
 
 # Growth projection chart
 st.markdown("<br>", unsafe_allow_html=True)
@@ -974,14 +1021,14 @@ st.markdown("## Diamond Foundry's Three-Decade Master Plan")
 
 timeline = [
     ("2013", "Introduce sustainably created diamond wherever mined diamond has been able to go",
-     "Diamond Foundry launched with lab-grown gems — proving that diamonds could be created "
+     "Diamond Foundry launched with lab-grown gems. Proving that diamonds could be created "
      "from methane using green energy, with zero mining. Today: 26% market share of rough diamonds."),
     ("2023", "Introduce single-crystal diamond wafers and put a diamond behind every chip",
      "World's first SCD wafers created. $200M+ revenue with 26% net profit margin. "
      "Partnerships with Infineon. Global manufacturing across USA, Spain, and Germany."),
     ("2033", "Introduce diamond as a semiconductor and deliver on its 17,200× merit over silicon",
      "The ultimate vision: diamond-based semiconductor devices. Not just thermal substrates, "
-     "but active diamond electronics — unlocking the full 17,200× semiconductor figure of merit."),
+     "but active diamond electronics. Unlocking the full 17,200× semiconductor figure of merit."),
 ]
 for year, headline, desc in timeline:
     st.markdown(f"""
