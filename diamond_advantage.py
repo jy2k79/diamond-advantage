@@ -163,13 +163,16 @@ st.markdown(f"""
         font-size: 14px !important;
     }}
 
-    /* ── Metric cards: dark bg (calculator area only) ── */
+    /* ── Metric cards: dark bg, fixed height so both sides match ── */
     [data-testid="stMetric"] {{
         background-color: {DF_BG_CARD};
         border: none;
         border-radius: 16px;
         padding: 24px 28px;
-        min-height: 130px;
+        min-height: 150px !important;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }}
     [data-testid="stMetricValue"] {{
         color: {DF_WHITE} !important;
@@ -704,34 +707,65 @@ traditional silicon substrates to Diamond Foundry's single-crystal diamond techn
 """, unsafe_allow_html=True)
 
 
-# Inject JS to make sliders fire updates during drag (works on desktop + mobile touch)
+# Inject JS for live slider updates during drag (desktop + mobile)
+# Approach: find BaseWeb slider's internal React fiber and call onFinalChange
 st.markdown("""
 <script>
 (function() {
-    const DEBOUNCE_MS = 150;
+    const DEBOUNCE_MS = 180;
     let timers = {};
 
+    function getReactFiber(el) {
+        const key = Object.keys(el).find(k => k.startsWith('__reactFiber$') || k.startsWith('__reactInternalInstance$'));
+        return key ? el[key] : null;
+    }
+
+    function findSliderHandler(fiber) {
+        // Walk up the fiber tree to find the Slider component with onFinalChange
+        let node = fiber;
+        let depth = 0;
+        while (node && depth < 30) {
+            if (node.memoizedProps && typeof node.memoizedProps.onFinalChange === 'function') {
+                return node.memoizedProps.onFinalChange;
+            }
+            node = node.return;
+            depth++;
+        }
+        return null;
+    }
+
     function attachLiveDrag() {
-        const sliders = document.querySelectorAll('[data-baseweb="slider"] div[role="slider"]');
-        sliders.forEach((thumb, idx) => {
+        const thumbs = document.querySelectorAll('[data-baseweb="slider"] div[role="slider"]');
+        thumbs.forEach((thumb, idx) => {
             if (thumb.dataset.liveDrag) return;
             thumb.dataset.liveDrag = "true";
 
             const observer = new MutationObserver(() => {
                 clearTimeout(timers[idx]);
                 timers[idx] = setTimeout(() => {
-                    // Dispatch both mouse and touch end events for cross-device support
-                    thumb.dispatchEvent(new MouseEvent('mouseup', {bubbles: true}));
-                    thumb.dispatchEvent(new TouchEvent('touchend', {bubbles: true}));
+                    const val = parseFloat(thumb.getAttribute('aria-valuenow'));
+                    if (isNaN(val)) return;
+
+                    // Try to call onFinalChange via React fiber
+                    const sliderRoot = thumb.closest('[data-baseweb="slider"]');
+                    if (!sliderRoot) return;
+                    const fiber = getReactFiber(sliderRoot);
+                    if (fiber) {
+                        const handler = findSliderHandler(fiber);
+                        if (handler) {
+                            handler({ value: [val] });
+                            return;
+                        }
+                    }
                 }, DEBOUNCE_MS);
             });
-            observer.observe(thumb, {attributes: true, attributeFilter: ['aria-valuenow']});
+            observer.observe(thumb, { attributes: true, attributeFilter: ['aria-valuenow'] });
         });
     }
 
-    const bodyObserver = new MutationObserver(() => { setTimeout(attachLiveDrag, 300); });
-    bodyObserver.observe(document.body, {childList: true, subtree: true});
-    setTimeout(attachLiveDrag, 800);
+    const bodyObs = new MutationObserver(() => { setTimeout(attachLiveDrag, 300); });
+    bodyObs.observe(document.body, { childList: true, subtree: true });
+    setTimeout(attachLiveDrag, 1000);
 })();
 </script>
 """, unsafe_allow_html=True)
