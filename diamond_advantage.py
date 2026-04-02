@@ -169,10 +169,12 @@ st.markdown(f"""
         border: none;
         border-radius: 16px;
         padding: 24px 28px;
-        min-height: 150px !important;
+        min-height: 160px !important;
+        height: 160px !important;
         display: flex;
         flex-direction: column;
         justify-content: center;
+        overflow: hidden;
     }}
     [data-testid="stMetricValue"] {{
         color: {DF_WHITE} !important;
@@ -297,14 +299,7 @@ st.markdown(f"""
         color: rgba(255,255,255,0.4);
         line-height: 1.6;
     }}
-    .df-step-arrow {{
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: rgba(34,30,30,0.15);
-        font-size: 24px;
-        padding-top: 40px;
-    }}
+    /* (arrow separators removed — using st.columns layout) */
 
     /* ── Comparison headers ── */
     .df-comp-header {{
@@ -435,11 +430,7 @@ st.markdown(f"""
     /* ══════════════════════════════════════════════════════
        TABLET  (≤960px) — process step arrows hide early
        ══════════════════════════════════════════════════════ */
-    @media (max-width: 960px) {{
-        .df-step-arrow-sep {{
-            display: none !important;
-        }}
-    }}
+    /* (960px arrow-sep rule removed — no longer needed) */
 
     /* ══════════════════════════════════════════════════════
        MOBILE RESPONSIVE  (≤768px)
@@ -477,7 +468,8 @@ st.markdown(f"""
         /* Metric cards: slightly less padding */
         [data-testid="stMetric"] {{
             padding: 18px 20px;
-            min-height: 110px;
+            min-height: 120px !important;
+            height: 120px !important;
         }}
         [data-testid="stMetricValue"] {{
             font-size: 1.6rem !important;
@@ -707,68 +699,8 @@ traditional silicon substrates to Diamond Foundry's single-crystal diamond techn
 """, unsafe_allow_html=True)
 
 
-# Inject JS for live slider updates during drag (desktop + mobile)
-# Approach: find BaseWeb slider's internal React fiber and call onFinalChange
-st.markdown("""
-<script>
-(function() {
-    const DEBOUNCE_MS = 180;
-    let timers = {};
-
-    function getReactFiber(el) {
-        const key = Object.keys(el).find(k => k.startsWith('__reactFiber$') || k.startsWith('__reactInternalInstance$'));
-        return key ? el[key] : null;
-    }
-
-    function findSliderHandler(fiber) {
-        // Walk up the fiber tree to find the Slider component with onFinalChange
-        let node = fiber;
-        let depth = 0;
-        while (node && depth < 30) {
-            if (node.memoizedProps && typeof node.memoizedProps.onFinalChange === 'function') {
-                return node.memoizedProps.onFinalChange;
-            }
-            node = node.return;
-            depth++;
-        }
-        return null;
-    }
-
-    function attachLiveDrag() {
-        const thumbs = document.querySelectorAll('[data-baseweb="slider"] div[role="slider"]');
-        thumbs.forEach((thumb, idx) => {
-            if (thumb.dataset.liveDrag) return;
-            thumb.dataset.liveDrag = "true";
-
-            const observer = new MutationObserver(() => {
-                clearTimeout(timers[idx]);
-                timers[idx] = setTimeout(() => {
-                    const val = parseFloat(thumb.getAttribute('aria-valuenow'));
-                    if (isNaN(val)) return;
-
-                    // Try to call onFinalChange via React fiber
-                    const sliderRoot = thumb.closest('[data-baseweb="slider"]');
-                    if (!sliderRoot) return;
-                    const fiber = getReactFiber(sliderRoot);
-                    if (fiber) {
-                        const handler = findSliderHandler(fiber);
-                        if (handler) {
-                            handler({ value: [val] });
-                            return;
-                        }
-                    }
-                }, DEBOUNCE_MS);
-            });
-            observer.observe(thumb, { attributes: true, attributeFilter: ['aria-valuenow'] });
-        });
-    }
-
-    const bodyObs = new MutationObserver(() => { setTimeout(attachLiveDrag, 300); });
-    bodyObs.observe(document.body, { childList: true, subtree: true });
-    setTimeout(attachLiveDrag, 1000);
-})();
-</script>
-""", unsafe_allow_html=True)
+# Note: Streamlit commits slider values only on mouse-up (or touch-end).
+# @st.fragment ensures the calculator re-renders quickly on release.
 
 
 @st.fragment
@@ -976,7 +908,7 @@ transform a climate problem into the world's most advanced thermal substrate.
 </p>
 """, unsafe_allow_html=True)
 
-# Process steps — rendered as single HTML flexbox for proper sizing
+# Process steps — using st.columns for reliable rendering
 steps = [
     ("factory", "Methane Capture",
      "CH₄ greenhouse gas sourced as carbon feedstock. A climate liability becomes raw material."),
@@ -990,27 +922,16 @@ steps = [
      "SCD wafer conducts heat 14.7× better than silicon. Next-gen AI chips, enabled."),
 ]
 
-step_html_items = []
-for i, (icon, title, desc) in enumerate(steps):
-    step_html_items.append(f"""
-    <div class="df-step" style="flex:1;min-width:160px;">
-        <div>{svg_icon(icon, 28, DF_WHITE)}</div>
-        <div class="df-step-title">{title}</div>
-        <div class="df-step-desc">{desc}</div>
-    </div>
-    """)
-    if i < len(steps) - 1:
-        step_html_items.append(f"""
-        <div class="df-step-arrow-sep" style="display:flex;align-items:center;padding:0 4px;flex-shrink:0;">
-            {svg_icon("arrow-right", 18, "rgba(34,30,30,0.15)")}
+step_cols = st.columns(5)
+for col, (icon, title, desc) in zip(step_cols, steps):
+    with col:
+        st.markdown(f"""
+        <div class="df-step">
+            <div style="text-align:center;">{svg_icon(icon, 28, DF_WHITE)}</div>
+            <div class="df-step-title">{title}</div>
+            <div class="df-step-desc">{desc}</div>
         </div>
-        """)
-
-st.markdown(f"""
-<div style="display:flex;gap:8px;align-items:stretch;flex-wrap:wrap;">
-    {"".join(step_html_items)}
-</div>
-""", unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
 # Carbon sequestration callout
 st.markdown(f"""
