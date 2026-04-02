@@ -1,6 +1,9 @@
 """
 The Diamond Advantage — AI Data Center Impact Calculator
 Built for Diamond Foundry | Interactive Streamlit Application
+
+Design language: Faithful to df.com — typography-driven, generous whitespace,
+minimal decoration, photography-style dark cards only where needed.
 """
 
 import streamlit as st
@@ -17,85 +20,92 @@ st.set_page_config(
 )
 
 # ──────────────────────────────────────────────────────────────
-# DF BRAND PALETTE
+# DF BRAND PALETTE  (extracted from df.com computed styles)
 # ──────────────────────────────────────────────────────────────
-DF_BLACK = "#221E1E"
-DF_ORANGE = "#FF5532"
-DF_GREY = "#C9C9C9"
-DF_WHITE = "#FFFFFF"
-DF_DARK_GREY = "#2A2626"
-DF_MID_GREY = "#3A3636"
-DF_LIGHT_ORANGE = "#FF7A5C"
+DF_BLACK   = "#221E1E"
+DF_ORANGE  = "#FF5532"
+DF_WHITE   = "#FFFFFF"
+DF_BODY    = "rgba(34,30,30,0.4)"   # body text on df.com
+DF_BORDER  = "rgba(226,226,226,0.5)" # pill borders, dividers
+DF_BG_CARD = "#221E1E"               # dark cards (calculator, footer)
 
 # ──────────────────────────────────────────────────────────────
-# DF LOGOS — Matching df.com: compact D◇F for header, full wordmark for footer
+# DF LOGOS — SVG marks matching df.com
 # ──────────────────────────────────────────────────────────────
 
-# Compact D◇F mark (as seen in df.com header nav)
 DF_LOGO_COMPACT = """
 <svg viewBox="0 0 80 28" xmlns="http://www.w3.org/2000/svg">
-  <text x="0" y="21" style="font-family: 'Inter', sans-serif; font-size: 20px; font-weight: 600; letter-spacing: 0.15em; fill: {color};">D</text>
+  <text x="0" y="21" style="font-family:'Inter',sans-serif;font-size:20px;font-weight:600;letter-spacing:0.15em;fill:{color};">D</text>
   <polygon points="38,3 48,14 38,25 28,14" fill="none" stroke="{color}" stroke-width="1.6"/>
-  <text x="56" y="21" style="font-family: 'Inter', sans-serif; font-size: 20px; font-weight: 600; letter-spacing: 0.15em; fill: {color};">F</text>
+  <text x="56" y="21" style="font-family:'Inter',sans-serif;font-size:20px;font-weight:600;letter-spacing:0.15em;fill:{color};">F</text>
 </svg>
 """
 
-# Full DIAMOND ◇ FOUNDRY wordmark (as seen in df.com footer)
 DF_LOGO_FULL = """
 <svg viewBox="0 0 420 28" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    .df-wm {{ font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; letter-spacing: 0.28em; fill: {color}; }}
-  </style>
+  <style>.df-wm{{font-family:'Inter',sans-serif;font-size:14px;font-weight:500;letter-spacing:0.28em;fill:{color};}}</style>
   <text x="0" y="18" class="df-wm">DIAMOND</text>
   <polygon points="218,2 228,14 218,26 208,14" fill="none" stroke="{color}" stroke-width="1.5"/>
   <text x="245" y="18" class="df-wm">FOUNDRY</text>
 </svg>
 """
 
-def df_logo_compact(color=DF_WHITE, width="70px"):
-    """Render the compact D◇F header mark."""
+def logo_compact(color=DF_BLACK, width="70px"):
     svg = DF_LOGO_COMPACT.replace("{color}", color)
-    return f'<div style="width: {width}; display: inline-block;">{svg}</div>'
+    return f'<div style="width:{width};display:inline-block;">{svg}</div>'
 
-def df_logo_full(color=DF_WHITE, width="320px"):
-    """Render the full DIAMOND ◇ FOUNDRY wordmark."""
+def logo_full(color=DF_BLACK, width="280px"):
     svg = DF_LOGO_FULL.replace("{color}", color)
-    return f'<div style="width: {width};">{svg}</div>'
+    return f'<div style="width:{width};">{svg}</div>'
+
+
+# ──────────────────────────────────────────────────────────────
+# THIN-LINE SVG ICONS  (replace emojis — monoline, DF-style)
+# ──────────────────────────────────────────────────────────────
+
+def svg_icon(name, size=32, color=DF_BLACK):
+    """Minimal single-stroke SVG icons matching df.com's clean aesthetic."""
+    icons = {
+        "bolt": f'<svg width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+        "thermometer": f'<svg width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>',
+        "droplet": f'<svg width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>',
+        "diamond": f'<svg width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 12 12 22 2 12"/></svg>',
+        "zap": f'<svg width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+        "factory": f'<svg width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20"/><path d="M5 20V8l5 4V8l5 4V4h3v16"/></svg>',
+        "atom": f'<svg width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(0 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)"/></svg>',
+        "layers": f'<svg width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>',
+        "cpu": f'<svg width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>',
+        "arrow-right": f'<svg width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
+    }
+    return icons.get(name, "")
 
 
 # ──────────────────────────────────────────────────────────────
 # CONSTANTS — Calculator assumptions
 # ──────────────────────────────────────────────────────────────
-CARBON_INTENSITY_KG_PER_KWH = 0.385   # US grid average 2024
-WATER_M3_PER_MWH = 1.8                 # Evaporative cooling average
-COOLING_REDUCTION_FACTOR = 0.42         # Diamond thermal conductivity advantage
-ENERGY_COST_PER_MWH = 65               # $/MWh wholesale
-PEAK_CHIP_TEMP_C = 95                   # Typical junction temp under load
-TEMP_REDUCTION_C = 52                   # From DF deck
-HOURS_PER_YEAR = 8760
-GLOBAL_DC_ENERGY_TWH_2024 = 460
-AI_WORKLOAD_FRACTION = 0.40
-COOLING_FRACTION = 0.35
+CARBON_INTENSITY  = 0.385   # kg CO₂/kWh (US grid 2024)
+WATER_M3_PER_MWH  = 1.8     # evaporative cooling avg
+COOLING_REDUCTION  = 0.42    # diamond thermal advantage
+ENERGY_COST_MWH   = 65      # $/MWh wholesale
+PEAK_TEMP_C        = 95      # typical junction temp
+TEMP_REDUCTION_C   = 52      # from DF deck
+HOURS_PER_YEAR     = 8760
+GLOBAL_DC_TWH      = 460     # 2024 estimate
+AI_FRACTION        = 0.40
+COOLING_FRACTION   = 0.35
+
 
 # ──────────────────────────────────────────────────────────────
-# CUSTOM CSS — Full DF Branding
+# CSS — Faithful df.com design system
 # ──────────────────────────────────────────────────────────────
 st.markdown(f"""
 <style>
-    /* ── df.com fonts: Inter + IBM Plex Mono ── */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap');
 
-    :root {{
-        --df-black: {DF_BLACK};
-        --df-orange: {DF_ORANGE};
-        --df-body: rgba(34,30,30,0.4);
-        --df-text: {DF_BLACK};
-    }}
-
-    /* ── Global: white bg, dark text (matches df.com body) ── */
+    /* ── Global: white bg, muted body text (df.com) ── */
     .stApp {{
-        background-color: #FFFFFF;
+        background-color: {DF_WHITE} !important;
         color: {DF_BLACK};
         font-family: 'Inter', sans-serif;
         font-size: 16px;
@@ -108,42 +118,46 @@ st.markdown(f"""
         padding-bottom: 4rem;
     }}
 
-    /* ── Headings: df.com uses weight 400 (light), negative tracking ── */
+    /* ── Headings: df.com → weight 400, tight tracking ── */
     h1, h2, h3, h4 {{
         font-family: 'Inter', sans-serif !important;
         color: {DF_BLACK} !important;
         font-weight: 400 !important;
     }}
     h1 {{
-        font-size: 3.5rem !important;
+        font-size: 56px !important;
         line-height: 1 !important;
         letter-spacing: -0.05em !important;
     }}
     h2 {{
-        font-size: 2.4rem !important;
-        letter-spacing: -0.03em !important;
-        margin-top: 3rem !important;
+        font-size: 32px !important;
+        line-height: 40px !important;
+        letter-spacing: -0.05em !important;
+        margin-top: 0 !important;
     }}
     h3 {{
-        font-size: 1.3rem !important;
-        color: rgba(34,30,30,0.4) !important;
-        font-weight: 400 !important;
+        font-size: 24px !important;
+        letter-spacing: -0.03em !important;
     }}
 
     p, li, span, div {{
         font-family: 'Inter', sans-serif !important;
     }}
 
-    /* ── Dividers: thin, light (df.com style) ── */
+    /* ── Dividers: df.com thin grey ── */
     hr {{
         border: none;
-        border-top: 1px solid #E5E5E5;
-        margin: 3rem 0;
+        border-top: 1px solid rgba(226,226,226,0.5);
+        margin: 3.5rem 0;
     }}
 
+    /* ── Hide Streamlit chrome ── */
     [data-testid="stSidebar"] {{ display: none; }}
+    #MainMenu {{visibility: hidden;}}
+    footer {{visibility: hidden;}}
+    header {{visibility: hidden;}}
 
-    /* ── Slider: DF orange thumb ── */
+    /* ── Sliders: DF orange ── */
     .stSlider > div > div > div > div {{
         background-color: {DF_ORANGE} !important;
     }}
@@ -154,288 +168,310 @@ st.markdown(f"""
     .stSlider label {{
         color: {DF_BLACK} !important;
         font-weight: 500 !important;
-    }}
-
-    /* ── Metric cards (dark cards in the calculator section) ── */
-    [data-testid="stMetric"] {{
-        background-color: {DF_DARK_GREY};
-        border: 1px solid {DF_MID_GREY};
-        border-radius: 12px;
-        padding: 20px 24px;
-    }}
-    [data-testid="stMetricValue"] {{
-        color: {DF_WHITE} !important;
-        font-weight: 700 !important;
-        font-size: 2rem !important;
-    }}
-    [data-testid="stMetricLabel"] {{
-        color: rgba(255,255,255,0.5) !important;
-        font-size: 0.85rem !important;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }}
-    [data-testid="stMetricDelta"] {{
-        font-size: 0.95rem !important;
-    }}
-
-    /* ── Diamond side metric: orange left border ── */
-    .df-diamond-col [data-testid="stMetric"] {{
-        border-left: 3px solid {DF_ORANGE};
+        font-size: 14px !important;
     }}
 
     /* ── Selectbox ── */
     .stSelectbox label {{
         color: {DF_BLACK} !important;
         font-weight: 500 !important;
+        font-size: 14px !important;
     }}
 
-    /* ── DARK cards (calculator, sequestration — like df.com's dark photo cards) ── */
-    .df-card {{
-        background: {DF_BLACK};
+    /* ── Metric cards: dark bg (calculator area only) ── */
+    [data-testid="stMetric"] {{
+        background-color: {DF_BG_CARD};
         border: none;
-        border-radius: 12px;
-        padding: 32px;
-        margin: 12px 0;
-        color: {DF_WHITE};
+        border-radius: 16px;
+        padding: 24px 28px;
     }}
-    .df-card-orange {{
-        background: linear-gradient(135deg, #3D1A10, #2D1510);
-        border: 1px solid rgba(255,85,50,0.2);
-        border-radius: 12px;
-        padding: 32px;
-        margin: 12px 0;
+    [data-testid="stMetricValue"] {{
+        color: {DF_WHITE} !important;
+        font-weight: 400 !important;
+        font-size: 2rem !important;
+        letter-spacing: -0.03em !important;
     }}
-
-    /* ── LIGHT cards (used for the "AI Crisis" section on white bg) ── */
-    .df-card-light {{
-        background: #F8F8F8;
-        border: 1px solid #E5E5E5;
-        border-radius: 12px;
-        padding: 32px;
-        margin: 12px 0;
-    }}
-
-    /* ── Hero stats ── */
-    .df-hero-stat {{
-        font-size: 3.5rem;
-        font-weight: 800;
-        color: {DF_ORANGE};
-        line-height: 1;
-        margin-bottom: 4px;
-    }}
-    .df-hero-label {{
-        font-size: 0.85rem;
-        color: rgba(34,30,30,0.4);
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        font-weight: 500;
-    }}
-
-    .df-accent {{
-        color: {DF_ORANGE};
-        font-weight: 600;
-    }}
-
-    .df-big-number {{
-        font-size: 4.5rem;
-        font-weight: 800;
-        color: {DF_ORANGE};
-        line-height: 1;
-        letter-spacing: -0.03em;
-    }}
-
-    /* ── Section labels: IBM Plex Mono uppercase (matches df.com nav/labels) ── */
-    .df-section-label {{
-        font-size: 14px;
-        text-transform: uppercase;
-        letter-spacing: normal;
-        color: rgba(34,30,30,0.4);
-        font-weight: 400;
+    [data-testid="stMetricLabel"] {{
+        color: rgba(255,255,255,0.4) !important;
         font-family: 'IBM Plex Mono', monospace !important;
-        margin-bottom: 8px;
+        font-size: 0.75rem !important;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+    }}
+    [data-testid="stMetricDelta"] {{
+        font-size: 0.9rem !important;
     }}
 
-    .df-divider {{
-        width: 60px;
-        height: 3px;
-        background-color: {DF_ORANGE};
-        margin: 16px 0 24px 0;
-        border-radius: 2px;
+    /* ── Diamond-side accent border ── */
+    .df-diamond-col [data-testid="stMetric"] {{
+        border-left: 3px solid {DF_ORANGE};
     }}
 
-    /* ── Impact numbers ── */
-    .df-impact-number {{
-        font-size: 2.8rem;
-        font-weight: 800;
-        color: {DF_ORANGE};
-        line-height: 1.1;
+    /* ── Muted column (traditional silicon side) ── */
+    .df-muted-col [data-testid="stMetric"] {{
+        opacity: 0.5;
     }}
 
-    /* ── Process steps (dark cards) ── */
-    .df-process-step {{
-        background: {DF_BLACK};
-        border: none;
-        border-radius: 12px;
-        padding: 24px 16px;
-        text-align: center;
-    }}
-    .df-process-icon {{
-        font-size: 2.5rem;
+    /* ── Section labels: IBM Plex Mono (df.com category markers) ── */
+    .df-label {{
+        font-family: 'IBM Plex Mono', monospace !important;
+        font-size: 14px;
+        font-weight: 400;
+        color: {DF_BODY};
+        text-transform: none;
         margin-bottom: 12px;
     }}
-    .df-process-title {{
-        font-size: 1rem;
+
+    /* ── Body text (df.com muted) ── */
+    .df-body {{
+        font-size: 16px;
+        color: {DF_BODY};
+        line-height: 1.7;
+        max-width: 680px;
+    }}
+
+    /* ── Stat number (large, tight tracking like df.com h1) ── */
+    .df-stat-num {{
+        font-family: 'Inter', sans-serif;
+        font-size: 48px;
+        font-weight: 400;
+        color: {DF_BLACK};
+        letter-spacing: -0.05em;
+        line-height: 1;
+    }}
+    .df-stat-label {{
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 13px;
+        font-weight: 400;
+        color: {DF_BODY};
+        margin-top: 6px;
+    }}
+
+    /* ── Dark card (calculator results, global impact) ── */
+    .df-dark-card {{
+        background: {DF_BG_CARD};
+        border-radius: 16px;
+        padding: 36px 32px;
+        color: {DF_WHITE};
+    }}
+
+    /* ── Orange-tinted card (savings banner) ── */
+    .df-orange-card {{
+        background: linear-gradient(135deg, #3D1A10, #2D1510);
+        border: 1px solid rgba(255,85,50,0.15);
+        border-radius: 16px;
+        padding: 36px 32px;
+    }}
+
+    /* ── Pill button (df.com style) ── */
+    .df-pill {{
+        display: inline-flex;
+        align-items: center;
+        font-family: 'Inter', sans-serif;
+        font-size: 17px;
+        font-weight: 400;
+        color: {DF_BLACK};
+        border: 1px solid {DF_BORDER};
+        border-radius: 999px;
+        padding: 12px 24px;
+        text-decoration: none;
+        letter-spacing: -0.03em;
+        background: rgba(226,226,226,0.5);
+    }}
+
+    /* ── CTA link (df.com "Learn more →" style) ── */
+    .df-cta {{
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 15px;
+        font-weight: 400;
+        color: {DF_ORANGE};
+        text-decoration: none;
+    }}
+
+    /* ── Process step (dark cards) ── */
+    .df-step {{
+        background: {DF_BG_CARD};
+        border-radius: 16px;
+        padding: 28px 20px;
+        text-align: center;
+        height: 100%;
+    }}
+    .df-step-title {{
+        font-size: 15px;
         font-weight: 600;
         color: {DF_WHITE};
-        margin-bottom: 8px;
+        margin: 16px 0 8px 0;
     }}
-    .df-process-desc {{
-        font-size: 0.82rem;
-        color: rgba(255,255,255,0.5);
-        line-height: 1.5;
+    .df-step-desc {{
+        font-size: 13px;
+        color: rgba(255,255,255,0.4);
+        line-height: 1.6;
     }}
-    .df-arrow {{
+    .df-step-arrow {{
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.8rem;
-        color: {DF_ORANGE};
+        color: rgba(34,30,30,0.15);
+        font-size: 24px;
         padding-top: 40px;
     }}
 
-    /* ── Footer: dark bg (matches df.com footer) ── */
-    .df-footer {{
-        background-color: {DF_BLACK};
-        text-align: center;
-        padding: 48px 32px 24px 32px;
-        margin: 48px -5rem 0 -5rem;
-        border-radius: 0;
-    }}
-
     /* ── Comparison headers ── */
-    .comparison-header {{
+    .df-comp-header {{
         font-family: 'IBM Plex Mono', monospace !important;
-        font-size: 0.85rem;
-        font-weight: 500;
+        font-size: 13px;
+        font-weight: 400;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.02em;
         padding-bottom: 12px;
         margin-bottom: 16px;
-        border-bottom: 2px solid;
+        border-bottom: 1px solid;
     }}
-    .comparison-traditional {{
-        color: rgba(34,30,30,0.4);
-        border-color: rgba(34,30,30,0.1);
+    .df-comp-trad {{
+        color: {DF_BODY};
+        border-color: rgba(226,226,226,0.5);
     }}
-    .comparison-diamond {{
+    .df-comp-diamond {{
         color: {DF_ORANGE};
         border-color: {DF_ORANGE};
     }}
 
     /* ── Timeline ── */
-    .df-timeline-item {{
+    .df-tl-item {{
         position: relative;
         padding-left: 32px;
-        padding-bottom: 32px;
-        border-left: 2px solid #E5E5E5;
+        padding-bottom: 36px;
+        border-left: 1px solid rgba(226,226,226,0.5);
         margin-left: 16px;
     }}
-    .df-timeline-item::before {{
+    .df-tl-item::before {{
         content: '';
         position: absolute;
-        left: -7px;
-        top: 4px;
-        width: 12px;
-        height: 12px;
+        left: -5px;
+        top: 6px;
+        width: 9px;
+        height: 9px;
         border-radius: 50%;
         background: {DF_ORANGE};
     }}
-    .df-timeline-year {{
-        font-size: 1.6rem;
-        font-weight: 700;
-        color: {DF_ORANGE};
-    }}
-    .df-timeline-text {{
-        font-size: 0.95rem;
-        color: rgba(34,30,30,0.4);
-        margin-top: 4px;
-        line-height: 1.6;
-    }}
-
-    /* ── Muted column (traditional silicon) ── */
-    .df-muted-col [data-testid="stMetric"] {{
-        opacity: 0.55;
-    }}
-
-    /* ── CTA links: IBM Plex Mono, orange, uppercase (matches df.com READ MORE →) ── */
-    .df-cta-link {{
-        font-family: 'IBM Plex Mono', monospace !important;
-        font-size: 15px;
+    .df-tl-year {{
+        font-size: 32px;
         font-weight: 400;
-        text-transform: uppercase;
-        color: {DF_ORANGE};
-        text-decoration: none;
-    }}
-
-    /* ── Pill buttons (matches df.com "Learn more" / "DF Tech Stack" buttons) ── */
-    .df-pill-btn {{
-        display: inline-block;
-        font-family: 'Inter', sans-serif !important;
-        font-size: 17px;
         color: {DF_BLACK};
-        border: 1px solid #E5E5E5;
-        border-radius: 999px;
-        padding: 12px 28px;
-        text-decoration: none;
-        letter-spacing: -0.03em;
-        transition: border-color 0.2s;
+        letter-spacing: -0.05em;
     }}
-    .df-pill-btn:hover {{
-        border-color: {DF_BLACK};
+    .df-tl-headline {{
+        font-size: 16px;
+        font-weight: 500;
+        color: {DF_BLACK};
+        margin: 4px 0 8px 0;
+    }}
+    .df-tl-text {{
+        font-size: 15px;
+        color: {DF_BODY};
+        line-height: 1.7;
     }}
 
-    /* ── Hide streamlit chrome ── */
-    #MainMenu {{visibility: hidden;}}
-    footer {{visibility: hidden;}}
-    header {{visibility: hidden;}}
+    /* ── Footer ── */
+    .df-footer {{
+        background-color: {DF_BG_CARD};
+        text-align: center;
+        padding: 56px 32px 28px 32px;
+        margin: 56px -5rem 0 -5rem;
+    }}
+
+    /* ── Chart area subtitle ── */
+    .df-chart-label {{
+        font-size: 14px;
+        color: {DF_BODY};
+        text-align: center;
+        margin-top: -12px;
+    }}
+
+    /* ── Impact numbers (savings banner) ── */
+    .df-impact-num {{
+        font-family: 'Inter', sans-serif;
+        font-size: 36px;
+        font-weight: 400;
+        color: {DF_ORANGE};
+        letter-spacing: -0.03em;
+        line-height: 1;
+    }}
+    .df-impact-label {{
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 12px;
+        color: rgba(255,255,255,0.4);
+        margin-top: 6px;
+        text-transform: uppercase;
+    }}
+
+    /* ── Global stat card (dark, for section 4) ── */
+    .df-global-card {{
+        background: {DF_BG_CARD};
+        border-radius: 16px;
+        padding: 32px 24px;
+        text-align: center;
+        height: 100%;
+        min-height: 180px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }}
+    .df-global-num {{
+        font-size: 40px;
+        font-weight: 400;
+        color: {DF_WHITE};
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+    }}
+    .df-global-unit {{
+        font-size: 14px;
+        color: {DF_ORANGE};
+        font-weight: 500;
+        margin-bottom: 8px;
+    }}
+    .df-global-label {{
+        font-size: 14px;
+        color: rgba(255,255,255,0.6);
+        font-weight: 400;
+    }}
+    .df-global-sub {{
+        font-size: 12px;
+        color: rgba(255,255,255,0.3);
+        margin-top: 8px;
+        line-height: 1.4;
+    }}
 </style>
 """, unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════════════════════════════
-#  PASSWORD GATE (optional — only active if secrets are set)
+#  PASSWORD GATE  (optional — only if secrets configured)
 # ══════════════════════════════════════════════════════════════
 def check_password():
-    """Returns True if no password is configured or if correct password is entered."""
     try:
         correct = st.secrets["password"]
     except (KeyError, FileNotFoundError):
-        return True  # No password configured — run freely
-
+        return True
     if st.session_state.get("authenticated"):
         return True
-
     st.markdown(f"""
-    <div style="max-width: 400px; margin: 120px auto 0 auto; text-align: center;">
-        <div style="display: flex; justify-content: center; margin-bottom: 24px;">
-            {df_logo_compact(DF_BLACK, "80px")}
-        </div>
-        <h2 style="margin-top: 16px; font-size: 1.6rem;">The Diamond Advantage</h2>
-        <p style="color: rgba(34,30,30,0.4); font-size: 0.9rem;">Enter password to continue</p>
+    <div style="max-width:360px;margin:120px auto 0;text-align:center;">
+        {logo_compact(DF_BLACK, "80px")}
+        <h2 style="margin-top:20px;font-size:24px;">The Diamond Advantage</h2>
+        <p class="df-body" style="margin:0 auto;">Enter password to continue</p>
     </div>
     """, unsafe_allow_html=True)
-
-    col1, col2, col3 = st.columns([1, 1, 1])
-    with col2:
-        password = st.text_input("Password", type="password", label_visibility="collapsed")
-        if password:
-            if password == correct:
+    c1, c2, c3 = st.columns([1, 1, 1])
+    with c2:
+        pw = st.text_input("Password", type="password", label_visibility="collapsed")
+        if pw:
+            if pw == correct:
                 st.session_state.authenticated = True
                 st.rerun()
             else:
                 st.error("Incorrect password")
     return False
-
 
 if not check_password():
     st.stop()
@@ -446,18 +482,18 @@ if not check_password():
 # ══════════════════════════════════════════════════════════════
 
 st.markdown(f"""
-<div style="margin-bottom: 24px;">
-    {df_logo_compact(DF_BLACK, "80px")}
+<div style="margin-bottom:20px;">
+    {logo_compact(DF_BLACK, "70px")}
 </div>
 """, unsafe_allow_html=True)
 
-st.markdown(f"""
-<h1 style="margin-bottom: 0;">What if we could cool AI<br>
-<span style="color: {DF_ORANGE};">with diamonds?</span></h1>
+st.markdown("""
+<h1>What if we could cool AI<br>
+<span style="color:#FF5532;">with diamonds?</span></h1>
 """, unsafe_allow_html=True)
 
 st.markdown(f"""
-<p style="font-size: 1.15rem; color: rgba(34,30,30,0.4); max-width: 680px; line-height: 1.7; margin-top: 16px;">
+<p class="df-body" style="margin-top:20px;">
 AI is hitting a wall — not of intelligence, but of <strong style="color:{DF_BLACK}">heat</strong>.
 Every generation of chips runs hotter, drinks more power, and demands more cooling.
 Diamond Foundry is solving this by replacing traditional substrates with
@@ -466,12 +502,11 @@ grown from captured methane greenhouse gas.
 </p>
 """, unsafe_allow_html=True)
 
-st.markdown('<div class="df-divider"></div>', unsafe_allow_html=True)
-
-# Hero stats row
+# Hero stats — clean, typography-driven (like df.com)
+st.markdown("<br>", unsafe_allow_html=True)
 hero_cols = st.columns(4)
 hero_data = [
-    ("17,200×", "Semiconductor merit vs. silicon"),
+    ("17,200×", "Semiconductor figure of merit vs silicon"),
     ("2,200+", "W/mK thermal conductivity"),
     ("52°C", "Chip temperature reduction"),
     ("3.7×", "Higher power density"),
@@ -479,59 +514,55 @@ hero_data = [
 for col, (val, label) in zip(hero_cols, hero_data):
     with col:
         st.markdown(f"""
-        <div style="text-align: center; padding: 16px 0;">
-            <div class="df-hero-stat">{val}</div>
-            <div class="df-hero-label">{label}</div>
+        <div style="padding:12px 0;">
+            <div class="df-stat-num">{val}</div>
+            <div class="df-stat-label">{label}</div>
         </div>
         """, unsafe_allow_html=True)
 
 st.markdown("---")
 
+
 # ══════════════════════════════════════════════════════════════
 #  SECTION 1 — THE AI POWER CRISIS
 # ══════════════════════════════════════════════════════════════
 
-st.markdown('<div class="df-section-label">The Problem</div>', unsafe_allow_html=True)
+st.markdown('<div class="df-label">The Problem</div>', unsafe_allow_html=True)
 st.markdown("## The AI Infrastructure Crisis")
 
 crisis_cols = st.columns(3)
-crisis_cards = [
-    ("⚡", "Power Hungry",
-     "Global data centers consumed <strong style='color:#FF5532'>~460 TWh</strong> in 2024 — "
-     "roughly 2% of global electricity. AI workloads are projected to push this past "
-     "<strong style='color:#FF5532'>1,000 TWh by 2028</strong>."),
-    ("🌡️", "Heat Wall",
-     "Modern AI chips like NVIDIA's B200 push <strong style='color:#FF5532'>1,000W per GPU</strong>. "
-     "Traditional silicon substrates can't dissipate this heat fast enough, "
-     "forcing chips to throttle and waste energy on cooling."),
-    ("💧", "Water & Carbon Cost",
-     "A single large AI data center can consume <strong style='color:#FF5532'>5+ million gallons "
-     "of water daily</strong> for cooling. The carbon footprint of training one large AI model "
-     "can exceed <strong style='color:#FF5532'>300 tons of CO₂</strong>."),
+crisis_data = [
+    ("bolt", "Power Hungry",
+     f"Global data centers consumed <strong style='color:{DF_BLACK}'>~460 TWh</strong> in 2024 — "
+     f"roughly 2% of global electricity. AI workloads are projected to push this past "
+     f"<strong style='color:{DF_BLACK}'>1,000 TWh by 2028</strong>."),
+    ("thermometer", "Heat Wall",
+     f"Modern AI chips like NVIDIA's B200 push <strong style='color:{DF_BLACK}'>1,000W per GPU</strong>. "
+     f"Traditional silicon substrates can't dissipate this heat fast enough, "
+     f"forcing chips to throttle and waste energy on cooling."),
+    ("droplet", "Water & Carbon Cost",
+     f"A single large AI data center can consume <strong style='color:{DF_BLACK}'>5+ million gallons "
+     f"of water daily</strong> for cooling. The carbon footprint of training one large AI model "
+     f"can exceed <strong style='color:{DF_BLACK}'>300 tons of CO₂</strong>."),
 ]
-for col, (icon, title, desc) in zip(crisis_cols, crisis_cards):
+for col, (icon, title, desc) in zip(crisis_cols, crisis_data):
     with col:
         st.markdown(f"""
-        <div class="df-card-light">
-            <div style="font-size: 2rem; margin-bottom: 12px;">{icon}</div>
-            <div style="font-size: 1.1rem; font-weight: 600; color: {DF_BLACK}; margin-bottom: 12px;">{title}</div>
-            <div style="font-size: 0.9rem; color: rgba(34,30,30,0.5); line-height: 1.65;">{desc}</div>
+        <div style="padding:24px 0;">
+            <div style="margin-bottom:16px;">{svg_icon(icon, 28, DF_BLACK)}</div>
+            <div style="font-size:17px;font-weight:500;color:{DF_BLACK};margin-bottom:12px;">{title}</div>
+            <div style="font-size:15px;color:{DF_BODY};line-height:1.7;">{desc}</div>
         </div>
         """, unsafe_allow_html=True)
 
 # Thermal conductivity chart
-st.markdown(f"""
-<div style="margin-top: 32px;">
-    <div class="df-section-label">Why Diamond?</div>
-    <h3 style="color: {DF_WHITE} !important; font-weight: 700 !important;">
-        Thermal Conductivity Comparison
-    </h3>
-</div>
-""", unsafe_allow_html=True)
+st.markdown("<br>", unsafe_allow_html=True)
+st.markdown('<div class="df-label">Why Diamond?</div>', unsafe_allow_html=True)
+st.markdown("### Thermal Conductivity Comparison")
 
 materials = ["Silicon", "Gallium Nitride", "Copper", "Silicon Carbide", "Diamond (SCD)"]
 conductivity = [150, 200, 380, 490, 2200]
-bar_colors = [DF_GREY, DF_GREY, DF_GREY, DF_GREY, DF_ORANGE]
+bar_colors = ["rgba(34,30,30,0.15)"] * 4 + [DF_ORANGE]
 
 fig_thermal = go.Figure()
 fig_thermal.add_trace(go.Bar(
@@ -539,178 +570,162 @@ fig_thermal.add_trace(go.Bar(
     marker=dict(color=bar_colors, line=dict(width=0), cornerradius=6),
     text=[f"  {v:,} W/mK" for v in conductivity],
     textposition='outside',
-    textfont=dict(color=DF_BLACK, size=14, family="Inter"),
+    textfont=dict(color=DF_BLACK, size=13, family="Inter"),
     hovertemplate='%{y}: %{x:,} W/mK<extra></extra>',
 ))
 fig_thermal.update_layout(
     plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
     font=dict(family="Inter", color="rgba(34,30,30,0.4)", size=13),
-    height=280, margin=dict(l=0, r=80, t=10, b=10),
+    height=260, margin=dict(l=0, r=80, t=10, b=10),
     xaxis=dict(showgrid=False, showticklabels=False, zeroline=False, range=[0, 2800]),
-    yaxis=dict(showgrid=False, tickfont=dict(size=13, color=DF_GREY), autorange="reversed"),
+    yaxis=dict(showgrid=False, tickfont=dict(size=13, color="rgba(34,30,30,0.4)"), autorange="reversed"),
     bargap=0.35,
 )
 st.plotly_chart(fig_thermal, use_container_width=True, config={'displayModeBar': False})
 
 st.markdown(f"""
-<p style="text-align: center; font-size: 1rem; color: rgba(34,30,30,0.4); margin-top: -16px;">
-    Diamond conducts heat <span class="df-accent">14.7× better than silicon</span> and
-    <span class="df-accent">5.8× better than copper</span>.
+<p class="df-chart-label">
+    Diamond conducts heat <span style="color:{DF_ORANGE};font-weight:500;">14.7× better than silicon</span> and
+    <span style="color:{DF_ORANGE};font-weight:500;">5.8× better than copper</span>.
 </p>
 """, unsafe_allow_html=True)
 
 st.markdown("---")
 
+
 # ══════════════════════════════════════════════════════════════
-#  SECTION 2 — INTERACTIVE CALCULATOR (uses st.fragment)
+#  SECTION 2 — INTERACTIVE CALCULATOR  (@st.fragment)
 # ══════════════════════════════════════════════════════════════
 
-st.markdown('<div class="df-section-label">Interactive Calculator</div>', unsafe_allow_html=True)
+st.markdown('<div class="df-label">Interactive Calculator</div>', unsafe_allow_html=True)
 st.markdown("## The Diamond Advantage Calculator")
 st.markdown(f"""
-<p style="font-size: 1rem; color: rgba(34,30,30,0.4); max-width: 700px; line-height: 1.6; margin-bottom: 24px;">
+<p class="df-body" style="margin-bottom:28px;">
 Configure a hypothetical AI data center and see the impact of switching from
-traditional silicon substrates to Diamond Foundry's single-crystal diamond (SCD) technology.
+traditional silicon substrates to Diamond Foundry's single-crystal diamond technology.
 </p>
 """, unsafe_allow_html=True)
 
 
 @st.fragment
 def calculator_fragment():
-    """Calculator section wrapped in st.fragment for real-time slider updates."""
+    """Calculator wrapped in st.fragment for real-time slider updates."""
 
     # ── Controls ──
-    calc_col1, calc_col2, calc_col3 = st.columns(3)
-    with calc_col1:
-        num_gpus = st.slider(
-            "Number of AI GPUs",
-            min_value=1000, max_value=100000, value=20000, step=1000,
-            format="%d",
-            help="Typical large AI cluster: 10,000–50,000 GPUs"
-        )
-    with calc_col2:
-        power_per_gpu = st.slider(
-            "Power per GPU (Watts)",
-            min_value=300, max_value=1500, value=700, step=50,
-            format="%dW",
-            help="NVIDIA A100: ~400W, H100: ~700W, B200: ~1000W"
-        )
-    with calc_col3:
-        pue = st.selectbox(
-            "Cooling Efficiency (PUE)",
-            options=[
-                ("Air-cooled (PUE 1.6)", 1.6),
-                ("Efficient air (PUE 1.3)", 1.3),
-                ("Liquid-cooled (PUE 1.15)", 1.15),
-            ],
-            format_func=lambda x: x[0],
-            index=0,
-            help="Power Usage Effectiveness — how much overhead goes to cooling"
-        )
-        pue_value = pue[1]
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        num_gpus = st.slider("Number of AI GPUs", 1000, 100000, 20000, 1000,
+                             format="%d", help="Typical large cluster: 10,000–50,000 GPUs")
+    with c2:
+        power_per_gpu = st.slider("Power per GPU (Watts)", 300, 1500, 700, 50,
+                                  format="%dW", help="A100: ~400W, H100: ~700W, B200: ~1000W")
+    with c3:
+        pue = st.selectbox("Cooling Efficiency (PUE)", [
+            ("Air-cooled (PUE 1.6)", 1.6),
+            ("Efficient air (PUE 1.3)", 1.3),
+            ("Liquid-cooled (PUE 1.15)", 1.15),
+        ], format_func=lambda x: x[0], index=0,
+           help="Power Usage Effectiveness — cooling overhead")
+        pue_val = pue[1]
 
     # ── Calculations ──
-    total_it_power_kw = (num_gpus * power_per_gpu) / 1000
-    total_facility_power_kw = total_it_power_kw * pue_value
-    cooling_overhead_kw = total_facility_power_kw - total_it_power_kw
-    annual_energy_mwh = total_facility_power_kw * HOURS_PER_YEAR / 1000
-    annual_co2_tons = annual_energy_mwh * CARBON_INTENSITY_KG_PER_KWH
-    annual_water_m3 = cooling_overhead_kw * HOURS_PER_YEAR / 1000 * WATER_M3_PER_MWH
+    it_kw = (num_gpus * power_per_gpu) / 1000
+    facility_kw = it_kw * pue_val
+    cooling_kw = facility_kw - it_kw
+    annual_mwh = facility_kw * HOURS_PER_YEAR / 1000
+    annual_co2 = annual_mwh * CARBON_INTENSITY
+    annual_water = cooling_kw * HOURS_PER_YEAR / 1000 * WATER_M3_PER_MWH
 
-    diamond_chip_temp = PEAK_CHIP_TEMP_C - TEMP_REDUCTION_C
-    diamond_cooling_kw = cooling_overhead_kw * (1 - COOLING_REDUCTION_FACTOR)
-    diamond_facility_kw = total_it_power_kw + diamond_cooling_kw
-    diamond_annual_mwh = diamond_facility_kw * HOURS_PER_YEAR / 1000
-    diamond_co2_tons = diamond_annual_mwh * CARBON_INTENSITY_KG_PER_KWH
-    diamond_water_m3 = diamond_cooling_kw * HOURS_PER_YEAR / 1000 * WATER_M3_PER_MWH
+    d_temp = PEAK_TEMP_C - TEMP_REDUCTION_C
+    d_cooling_kw = cooling_kw * (1 - COOLING_REDUCTION)
+    d_facility_kw = it_kw + d_cooling_kw
+    d_annual_mwh = d_facility_kw * HOURS_PER_YEAR / 1000
+    d_co2 = d_annual_mwh * CARBON_INTENSITY
+    d_water = d_cooling_kw * HOURS_PER_YEAR / 1000 * WATER_M3_PER_MWH
 
-    energy_saved_mwh = annual_energy_mwh - diamond_annual_mwh
-    co2_saved_tons = annual_co2_tons - diamond_co2_tons
-    water_saved_m3 = annual_water_m3 - diamond_water_m3
-    water_saved_gallons = water_saved_m3 * 264.172
-    cost_saved = energy_saved_mwh * ENERGY_COST_PER_MWH
+    saved_mwh = annual_mwh - d_annual_mwh
+    saved_co2 = annual_co2 - d_co2
+    saved_water = annual_water - d_water
+    saved_gal = saved_water * 264.172
+    saved_cost = saved_mwh * ENERGY_COST_MWH
 
-    # ── Results: side-by-side comparison ──
+    # ── Comparison headers ──
     st.markdown(f"""
-    <div style="display: flex; gap: 12px; margin: 24px 0 8px 0;">
-        <div class="comparison-header comparison-traditional" style="flex: 1; text-align: center;">
-            Traditional Silicon
-        </div>
-        <div class="comparison-header comparison-diamond" style="flex: 1; text-align: center;">
-            Diamond Foundry SCD
-        </div>
+    <div style="display:flex;gap:12px;margin:28px 0 8px 0;">
+        <div class="df-comp-header df-comp-trad" style="flex:1;text-align:center;">Traditional Silicon</div>
+        <div class="df-comp-header df-comp-diamond" style="flex:1;text-align:center;">Diamond Foundry SCD</div>
     </div>
     """, unsafe_allow_html=True)
 
     # Temperature
-    r1_left, r1_right = st.columns(2)
-    with r1_left:
+    r1a, r1b = st.columns(2)
+    with r1a:
         st.markdown('<div class="df-muted-col">', unsafe_allow_html=True)
-        st.metric("Peak Chip Temperature", f"{PEAK_CHIP_TEMP_C}°C")
+        st.metric("Peak Chip Temperature", f"{PEAK_TEMP_C}°C")
         st.markdown('</div>', unsafe_allow_html=True)
-    with r1_right:
+    with r1b:
         st.markdown('<div class="df-diamond-col">', unsafe_allow_html=True)
-        st.metric("Peak Chip Temperature", f"{diamond_chip_temp}°C",
+        st.metric("Peak Chip Temperature", f"{d_temp}°C",
                   delta=f"-{TEMP_REDUCTION_C}°C cooler", delta_color="inverse")
         st.markdown('</div>', unsafe_allow_html=True)
 
     # Power
-    r2_left, r2_right = st.columns(2)
-    with r2_left:
+    r2a, r2b = st.columns(2)
+    with r2a:
         st.markdown('<div class="df-muted-col">', unsafe_allow_html=True)
-        st.metric("Total Facility Power", f"{total_facility_power_kw:,.0f} kW")
+        st.metric("Total Facility Power", f"{facility_kw:,.0f} kW")
         st.markdown('</div>', unsafe_allow_html=True)
-    with r2_right:
-        pct_power = (1 - diamond_facility_kw / total_facility_power_kw) * 100
+    with r2b:
+        pct_power = (1 - d_facility_kw / facility_kw) * 100
         st.markdown('<div class="df-diamond-col">', unsafe_allow_html=True)
-        st.metric("Total Facility Power", f"{diamond_facility_kw:,.0f} kW",
+        st.metric("Total Facility Power", f"{d_facility_kw:,.0f} kW",
                   delta=f"-{pct_power:.0f}% power draw", delta_color="inverse")
         st.markdown('</div>', unsafe_allow_html=True)
 
     # CO₂
-    r3_left, r3_right = st.columns(2)
-    with r3_left:
+    r3a, r3b = st.columns(2)
+    with r3a:
         st.markdown('<div class="df-muted-col">', unsafe_allow_html=True)
-        st.metric("Annual CO₂ Emissions", f"{annual_co2_tons:,.0f} tons")
+        st.metric("Annual CO₂ Emissions", f"{annual_co2:,.0f} tons")
         st.markdown('</div>', unsafe_allow_html=True)
-    with r3_right:
+    with r3b:
         st.markdown('<div class="df-diamond-col">', unsafe_allow_html=True)
-        st.metric("Annual CO₂ Emissions", f"{diamond_co2_tons:,.0f} tons",
-                  delta=f"-{co2_saved_tons:,.0f} tons/year", delta_color="inverse")
+        st.metric("Annual CO₂ Emissions", f"{d_co2:,.0f} tons",
+                  delta=f"-{saved_co2:,.0f} tons/year", delta_color="inverse")
         st.markdown('</div>', unsafe_allow_html=True)
 
     # Water
-    r4_left, r4_right = st.columns(2)
-    with r4_left:
+    r4a, r4b = st.columns(2)
+    with r4a:
         st.markdown('<div class="df-muted-col">', unsafe_allow_html=True)
-        st.metric("Annual Water Usage", f"{annual_water_m3:,.0f} m³")
+        st.metric("Annual Water Usage", f"{annual_water:,.0f} m³")
         st.markdown('</div>', unsafe_allow_html=True)
-    with r4_right:
+    with r4b:
         st.markdown('<div class="df-diamond-col">', unsafe_allow_html=True)
-        st.metric("Annual Water Usage", f"{diamond_water_m3:,.0f} m³",
-                  delta=f"-{water_saved_m3:,.0f} m³/year", delta_color="inverse")
+        st.metric("Annual Water Usage", f"{d_water:,.0f} m³",
+                  delta=f"-{saved_water:,.0f} m³/year", delta_color="inverse")
         st.markdown('</div>', unsafe_allow_html=True)
 
     # ── Savings banner ──
     st.markdown(f"""
-    <div class="df-card-orange" style="margin-top: 24px;">
-        <div class="df-section-label" style="text-align: center;">Annual Savings with Diamond Foundry</div>
-        <div style="display: flex; justify-content: space-around; text-align: center; margin-top: 16px; flex-wrap: wrap;">
-            <div style="padding: 8px 16px;">
-                <div class="df-impact-number">{energy_saved_mwh:,.0f}</div>
-                <div class="df-hero-label" style="margin-top: 4px;">MWh Energy Saved</div>
+    <div class="df-orange-card" style="margin-top:28px;">
+        <div class="df-label" style="text-align:center;color:rgba(255,255,255,0.4);">Annual Savings with Diamond Foundry</div>
+        <div style="display:flex;justify-content:space-around;text-align:center;margin-top:16px;flex-wrap:wrap;">
+            <div style="padding:8px 16px;">
+                <div class="df-impact-num">{saved_mwh:,.0f}</div>
+                <div class="df-impact-label">MWh Energy Saved</div>
             </div>
-            <div style="padding: 8px 16px;">
-                <div class="df-impact-number">{co2_saved_tons:,.0f}</div>
-                <div class="df-hero-label" style="margin-top: 4px;">Tons CO₂ Avoided</div>
+            <div style="padding:8px 16px;">
+                <div class="df-impact-num">{saved_co2:,.0f}</div>
+                <div class="df-impact-label">Tons CO₂ Avoided</div>
             </div>
-            <div style="padding: 8px 16px;">
-                <div class="df-impact-number">{water_saved_gallons / 1e6:,.1f}M</div>
-                <div class="df-hero-label" style="margin-top: 4px;">Gallons Water Saved</div>
+            <div style="padding:8px 16px;">
+                <div class="df-impact-num">{saved_gal / 1e6:,.1f}M</div>
+                <div class="df-impact-label">Gallons Water Saved</div>
             </div>
-            <div style="padding: 8px 16px;">
-                <div class="df-impact-number">${cost_saved / 1e6:,.1f}M</div>
-                <div class="df-hero-label" style="margin-top: 4px;">Annual Cost Savings</div>
+            <div style="padding:8px 16px;">
+                <div class="df-impact-num">${saved_cost / 1e6:,.1f}M</div>
+                <div class="df-impact-label">Annual Cost Savings</div>
             </div>
         </div>
     </div>
@@ -718,66 +733,59 @@ def calculator_fragment():
 
     # ── Charts ──
     st.markdown("<br>", unsafe_allow_html=True)
-    chart_col1, chart_col2 = st.columns(2)
+    ch1, ch2 = st.columns(2)
 
-    with chart_col1:
+    with ch1:
         fig_power = go.Figure()
         fig_power.add_trace(go.Bar(
-            name='IT Load (GPUs)',
-            x=['Traditional<br>Silicon', 'Diamond<br>Foundry SCD'],
-            y=[total_it_power_kw, total_it_power_kw],
-            marker_color=DF_GREY, marker_cornerradius=4,
-            text=[f'{total_it_power_kw:,.0f} kW'] * 2,
-            textposition='inside',
+            name='IT Load (GPUs)', x=['Traditional<br>Silicon', 'Diamond<br>Foundry SCD'],
+            y=[it_kw, it_kw], marker_color="rgba(34,30,30,0.15)", marker_cornerradius=4,
+            text=[f'{it_kw:,.0f} kW'] * 2, textposition='inside',
             textfont=dict(color=DF_BLACK, size=12, family="Inter"),
             hovertemplate='IT Load: %{y:,.0f} kW<extra></extra>',
         ))
         fig_power.add_trace(go.Bar(
-            name='Cooling Overhead',
-            x=['Traditional<br>Silicon', 'Diamond<br>Foundry SCD'],
-            y=[cooling_overhead_kw, diamond_cooling_kw],
-            marker_color=[DF_LIGHT_ORANGE, DF_ORANGE], marker_cornerradius=4,
-            text=[f'{cooling_overhead_kw:,.0f} kW', f'{diamond_cooling_kw:,.0f} kW'],
-            textposition='inside',
-            textfont=dict(color=DF_WHITE, size=12, family="Inter"),
+            name='Cooling Overhead', x=['Traditional<br>Silicon', 'Diamond<br>Foundry SCD'],
+            y=[cooling_kw, d_cooling_kw],
+            marker_color=["rgba(255,85,50,0.4)", DF_ORANGE], marker_cornerradius=4,
+            text=[f'{cooling_kw:,.0f} kW', f'{d_cooling_kw:,.0f} kW'],
+            textposition='inside', textfont=dict(color=DF_WHITE, size=12, family="Inter"),
             hovertemplate='Cooling: %{y:,.0f} kW<extra></extra>',
         ))
         fig_power.update_layout(
-            barmode='stack',
-            plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
+            barmode='stack', plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
             font=dict(family="Inter", color="rgba(34,30,30,0.4)", size=12),
             height=350, margin=dict(l=20, r=20, t=40, b=20),
             title=dict(text="Power Breakdown (kW)", font=dict(size=14, color=DF_BLACK)),
-            yaxis=dict(showgrid=True, gridcolor="rgba(34,30,30,0.08)", zeroline=False,
+            yaxis=dict(showgrid=True, gridcolor="rgba(226,226,226,0.5)", zeroline=False,
                        tickfont=dict(color="rgba(34,30,30,0.4)")),
             xaxis=dict(tickfont=dict(color=DF_BLACK, size=12)),
             legend=dict(orientation="h", yanchor="bottom", y=-0.25, xanchor="center", x=0.5,
-                        font=dict(color=DF_GREY, size=11)),
+                        font=dict(color="rgba(34,30,30,0.4)", size=11)),
             bargap=0.4,
         )
         st.plotly_chart(fig_power, use_container_width=True, config={'displayModeBar': False})
 
-    with chart_col2:
-        pct_reduction = (co2_saved_tons / annual_co2_tons) * 100 if annual_co2_tons > 0 else 0
+    with ch2:
+        pct_red = (saved_co2 / annual_co2) * 100 if annual_co2 > 0 else 0
         fig_donut = go.Figure()
         fig_donut.add_trace(go.Pie(
-            labels=['CO₂ Avoided', 'Remaining Emissions'],
-            values=[co2_saved_tons, diamond_co2_tons],
-            hole=0.65,
-            marker=dict(colors=[DF_ORANGE, DF_MID_GREY], line=dict(width=0)),
+            labels=['CO₂ Avoided', 'Remaining'],
+            values=[saved_co2, d_co2], hole=0.7,
+            marker=dict(colors=[DF_ORANGE, "rgba(34,30,30,0.1)"], line=dict(width=0)),
             textinfo='none',
             hovertemplate='%{label}: %{value:,.0f} tons<extra></extra>',
         ))
         fig_donut.update_layout(
             plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-            font=dict(family="Inter", color=DF_GREY),
+            font=dict(family="Inter", color="rgba(34,30,30,0.4)"),
             height=350, margin=dict(l=20, r=20, t=40, b=20),
             title=dict(text="CO₂ Reduction Impact", font=dict(size=14, color=DF_BLACK)),
             showlegend=True,
             legend=dict(orientation="h", yanchor="bottom", y=-0.15, xanchor="center", x=0.5,
-                        font=dict(color=DF_GREY, size=11)),
+                        font=dict(color="rgba(34,30,30,0.4)", size=11)),
             annotations=[dict(
-                text=f"<b>{pct_reduction:.0f}%</b><br><span style='font-size:12px'>reduction</span>",
+                text=f"<b>{pct_red:.0f}%</b><br><span style='font-size:12px'>reduction</span>",
                 x=0.5, y=0.5, font=dict(size=28, color=DF_ORANGE, family="Inter"),
                 showarrow=False,
             )],
@@ -785,79 +793,80 @@ def calculator_fragment():
         st.plotly_chart(fig_donut, use_container_width=True, config={'displayModeBar': False})
 
 
-# Run the fragment
 calculator_fragment()
 
 st.markdown("---")
+
 
 # ══════════════════════════════════════════════════════════════
 #  SECTION 3 — FROM METHANE TO DIAMOND
 # ══════════════════════════════════════════════════════════════
 
-st.markdown('<div class="df-section-label">The Process</div>', unsafe_allow_html=True)
+st.markdown('<div class="df-label">The Process</div>', unsafe_allow_html=True)
 st.markdown("## From Greenhouse Gas to Diamond")
 st.markdown(f"""
-<p style="font-size: 1rem; color: rgba(34,30,30,0.4); max-width: 700px; line-height: 1.6; margin-bottom: 32px;">
+<p class="df-body" style="margin-bottom:32px;">
 Diamond Foundry doesn't mine diamonds — it <strong style="color:{DF_BLACK}">crystallizes them from methane</strong>,
 a potent greenhouse gas. Using proprietary plasma reactors powered by green energy,
-DF literally transforms a climate problem into the world's most advanced thermal substrate.
+DF transforms a climate problem into the world's most advanced thermal substrate.
 </p>
 """, unsafe_allow_html=True)
 
-# Process steps — responsive 5-column layout
-process_steps = [
-    ("🏭", "Methane Capture",
+# Process steps
+steps = [
+    ("factory", "Methane Capture",
      "CH₄ greenhouse gas is sourced as the carbon feedstock — turning a climate liability into raw material."),
-    ("⚡", "Plasma Reactor",
-     "DF's proprietary 10th-gen reactors achieve 150× higher productivity, breaking methane into atomic carbon."),
-    ("💎", "Crystal Growth",
+    ("zap", "Plasma Reactor",
+     "DF's 10th-gen reactors achieve 150× higher productivity, breaking methane into atomic carbon."),
+    ("diamond", "Crystal Growth",
      "Carbon atoms self-assemble into perfect single-crystal diamond via DF's patented heteroepitaxy."),
-    ("🔬", "Wafer Finishing",
+    ("layers", "Wafer Finishing",
      "Diamond ingots are polished to angstrom-level flatness, then atomically bonded to silicon or SiC."),
-    ("🧠", "AI-Ready Substrate",
-     "The SCD wafer conducts heat 14.7× better than silicon — enabling the next generation of AI."),
+    ("cpu", "AI-Ready Substrate",
+     "The SCD wafer conducts heat 14.7× better than silicon — enabling the next generation of AI chips."),
 ]
 
 p_cols = st.columns(9)
 col_idx = 0
-for i, (icon, title, desc) in enumerate(process_steps):
+for i, (icon, title, desc) in enumerate(steps):
     with p_cols[col_idx]:
         st.markdown(f"""
-        <div class="df-process-step">
-            <div class="df-process-icon">{icon}</div>
-            <div class="df-process-title">{title}</div>
-            <div class="df-process-desc">{desc}</div>
+        <div class="df-step">
+            <div>{svg_icon(icon, 28, DF_WHITE)}</div>
+            <div class="df-step-title">{title}</div>
+            <div class="df-step-desc">{desc}</div>
         </div>
         """, unsafe_allow_html=True)
     col_idx += 1
-    if i < len(process_steps) - 1:
+    if i < len(steps) - 1:
         with p_cols[col_idx]:
-            st.markdown('<div class="df-arrow">→</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="df-step-arrow">{svg_icon("arrow-right", 20, "rgba(34,30,30,0.15)")}</div>',
+                        unsafe_allow_html=True)
         col_idx += 1
 
 # Carbon sequestration callout
 st.markdown(f"""
-<div class="df-card-orange" style="margin-top: 32px; text-align: center;">
-    <div style="font-size: 1.5rem; font-weight: 600; color: {DF_WHITE}; margin-bottom: 8px;">
+<div class="df-dark-card" style="margin-top:36px;text-align:center;">
+    <div style="font-size:24px;font-weight:400;color:{DF_WHITE};letter-spacing:-0.03em;margin-bottom:8px;">
         Crystallizing Greenhouse Gas into Single-Crystal Diamond
     </div>
-    <div style="font-size: 1rem; color: rgba(255,255,255,0.5); max-width: 600px; margin: 0 auto; line-height: 1.6;">
+    <div style="font-size:15px;color:rgba(255,255,255,0.4);max-width:600px;margin:0 auto;line-height:1.7;">
         Every diamond wafer Diamond Foundry produces permanently locks carbon atoms
         into the hardest, most thermally conductive material known to science —
         powered by hydroelectric and solar energy.
     </div>
-    <div style="display: flex; justify-content: center; gap: 48px; margin-top: 24px;">
+    <div style="display:flex;justify-content:center;gap:56px;margin-top:28px;">
         <div>
-            <div style="font-size: 2rem; font-weight: 800; color: {DF_ORANGE};">97%</div>
-            <div class="df-hero-label">of global SCD capacity</div>
+            <div style="font-size:32px;font-weight:400;color:{DF_WHITE};letter-spacing:-0.03em;">97%</div>
+            <div class="df-impact-label">of global SCD capacity</div>
         </div>
         <div>
-            <div style="font-size: 2rem; font-weight: 800; color: {DF_ORANGE};">10th Gen</div>
-            <div class="df-hero-label">proprietary reactors</div>
+            <div style="font-size:32px;font-weight:400;color:{DF_WHITE};letter-spacing:-0.03em;">10th Gen</div>
+            <div class="df-impact-label">proprietary reactors</div>
         </div>
         <div>
-            <div style="font-size: 2rem; font-weight: 800; color: {DF_ORANGE};">100%</div>
-            <div class="df-hero-label">green energy powered</div>
+            <div style="font-size:32px;font-weight:400;color:{DF_WHITE};letter-spacing:-0.03em;">100%</div>
+            <div class="df-impact-label">green energy powered</div>
         </div>
     </div>
 </div>
@@ -865,47 +874,48 @@ st.markdown(f"""
 
 st.markdown("---")
 
+
 # ══════════════════════════════════════════════════════════════
 #  SECTION 4 — GLOBAL IMPACT AT SCALE
 # ══════════════════════════════════════════════════════════════
 
-st.markdown('<div class="df-section-label">The Big Picture</div>', unsafe_allow_html=True)
+st.markdown('<div class="df-label">The Big Picture</div>', unsafe_allow_html=True)
 st.markdown("## If Every AI Data Center Used Diamond")
 st.markdown(f"""
-<p style="font-size: 1rem; color: rgba(34,30,30,0.4); max-width: 700px; line-height: 1.6; margin-bottom: 32px;">
+<p class="df-body" style="margin-bottom:32px;">
 The world is building AI infrastructure at an unprecedented pace. Here's what it would mean
 if Diamond Foundry's SCD technology were deployed across the global AI data center fleet.
 </p>
 """, unsafe_allow_html=True)
 
-# Global scale estimates
-global_ai_energy_twh = GLOBAL_DC_ENERGY_TWH_2024 * AI_WORKLOAD_FRACTION
-global_cooling_twh = global_ai_energy_twh * COOLING_FRACTION
-global_savings_twh = global_cooling_twh * COOLING_REDUCTION_FACTOR
-global_co2_saved_mt = global_savings_twh * 1e6 * CARBON_INTENSITY_KG_PER_KWH / 1e6
-global_water_saved_billion_gal = global_cooling_twh * 1e6 * WATER_M3_PER_MWH * 264.172 / 1e9
-homes_equivalent = global_savings_twh * 1e6 / 10.5
-cars_equivalent = global_co2_saved_mt * 1e6 / 4.6
+# Global estimates
+g_ai_twh = GLOBAL_DC_TWH * AI_FRACTION
+g_cooling_twh = g_ai_twh * COOLING_FRACTION
+g_saved_twh = g_cooling_twh * COOLING_REDUCTION
+g_co2_mt = g_saved_twh * 1e6 * CARBON_INTENSITY / 1e6
+g_water_bgal = g_cooling_twh * 1e6 * WATER_M3_PER_MWH * 264.172 / 1e9
+g_homes = g_saved_twh * 1e6 / 10.5
+g_cars = g_co2_mt * 1e6 / 4.6
 
 g_cols = st.columns(4)
 global_stats = [
-    (f"{global_savings_twh:.1f}", "TWh", "Energy saved annually",
+    (f"{g_saved_twh:.1f}", "TWh", "Energy saved annually",
      "Equivalent to powering a small country"),
-    (f"{global_co2_saved_mt:.1f}M", "tons", "CO₂ emissions avoided",
-     f"Like removing {cars_equivalent/1e6:.1f}M cars from roads"),
-    (f"{global_water_saved_billion_gal:.0f}B", "gallons", "Water conserved",
+    (f"{g_co2_mt:.1f}M", "tons", "CO₂ emissions avoided",
+     f"Like removing {g_cars/1e6:.1f}M cars from roads"),
+    (f"{g_water_bgal:.0f}B", "gallons", "Water conserved",
      "Enough to supply a major city for a year"),
-    (f"{homes_equivalent/1e6:.1f}M", "homes", "Equivalent energy freed",
+    (f"{g_homes/1e6:.1f}M", "homes", "Equivalent energy freed",
      "Redirected from cooling to useful compute"),
 ]
 for col, (num, unit, label, sublabel) in zip(g_cols, global_stats):
     with col:
         st.markdown(f"""
-        <div class="df-card" style="text-align: center; min-height: 200px;">
-            <div class="df-big-number" style="font-size: 3rem;">{num}</div>
-            <div style="font-size: 1rem; color: {DF_ORANGE}; font-weight: 600; margin-bottom: 8px;">{unit}</div>
-            <div style="font-size: 0.95rem; color: {DF_WHITE}; font-weight: 600;">{label}</div>
-            <div style="font-size: 0.8rem; color: rgba(255,255,255,0.4); margin-top: 6px; line-height: 1.4;">{sublabel}</div>
+        <div class="df-global-card">
+            <div class="df-global-num">{num}</div>
+            <div class="df-global-unit">{unit}</div>
+            <div class="df-global-label">{label}</div>
+            <div class="df-global-sub">{sublabel}</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -913,23 +923,21 @@ for col, (num, unit, label, sublabel) in zip(g_cols, global_stats):
 st.markdown("<br>", unsafe_allow_html=True)
 
 years = [2024, 2025, 2026, 2027, 2028, 2029, 2030]
-dc_energy_baseline = [460, 550, 660, 790, 950, 1100, 1280]
-dc_energy_diamond = [460, 530, 610, 700, 790, 880, 980]
+baseline = [460, 550, 660, 790, 950, 1100, 1280]
+with_diamond = [460, 530, 610, 700, 790, 880, 980]
 
 fig_proj = go.Figure()
 fig_proj.add_trace(go.Scatter(
-    x=years, y=dc_energy_baseline,
-    name='Without Diamond (Baseline)',
-    line=dict(color=DF_GREY, width=3, dash='dot'),
-    mode='lines+markers', marker=dict(size=8, color=DF_GREY),
+    x=years, y=baseline, name='Without Diamond (Baseline)',
+    line=dict(color="rgba(34,30,30,0.2)", width=2, dash='dot'),
+    mode='lines+markers', marker=dict(size=6, color="rgba(34,30,30,0.2)"),
     hovertemplate='%{x}: %{y:,.0f} TWh<extra>Baseline</extra>',
 ))
 fig_proj.add_trace(go.Scatter(
-    x=years, y=dc_energy_diamond,
-    name='With Diamond Foundry SCD',
-    line=dict(color=DF_ORANGE, width=3),
-    mode='lines+markers', marker=dict(size=8, color=DF_ORANGE),
-    fill='tonexty', fillcolor="rgba(255,85,50,0.08)",
+    x=years, y=with_diamond, name='With Diamond Foundry SCD',
+    line=dict(color=DF_ORANGE, width=2),
+    mode='lines+markers', marker=dict(size=6, color=DF_ORANGE),
+    fill='tonexty', fillcolor="rgba(255,85,50,0.06)",
     hovertemplate='%{x}: %{y:,.0f} TWh<extra>With Diamond</extra>',
 ))
 fig_proj.update_layout(
@@ -938,15 +946,15 @@ fig_proj.update_layout(
     height=380, margin=dict(l=20, r=20, t=50, b=20),
     title=dict(text="Projected Global Data Center Energy Consumption (TWh)",
                font=dict(size=14, color=DF_BLACK)),
-    xaxis=dict(showgrid=False, tickfont=dict(color=DF_GREY, size=12), dtick=1),
-    yaxis=dict(showgrid=True, gridcolor="rgba(34,30,30,0.08)", zeroline=False,
+    xaxis=dict(showgrid=False, tickfont=dict(color="rgba(34,30,30,0.4)", size=12), dtick=1),
+    yaxis=dict(showgrid=True, gridcolor="rgba(226,226,226,0.5)", zeroline=False,
                tickfont=dict(color="rgba(34,30,30,0.4)"), ticksuffix=" TWh"),
     legend=dict(orientation="h", yanchor="bottom", y=-0.2, xanchor="center", x=0.5,
-                font=dict(color=DF_GREY, size=12)),
+                font=dict(color="rgba(34,30,30,0.4)", size=12)),
 )
 fig_proj.add_annotation(
-    x=2029, y=(dc_energy_baseline[5] + dc_energy_diamond[5]) / 2,
-    text=f"<b>{dc_energy_baseline[5] - dc_energy_diamond[5]} TWh saved</b>",
+    x=2029, y=(baseline[5] + with_diamond[5]) / 2,
+    text=f"<b>{baseline[5] - with_diamond[5]} TWh saved</b>",
     showarrow=True, arrowhead=0, arrowcolor=DF_ORANGE,
     font=dict(color=DF_ORANGE, size=13, family="Inter"),
     ax=80, ay=0,
@@ -957,14 +965,15 @@ st.plotly_chart(fig_proj, use_container_width=True, config={'displayModeBar': Fa
 
 st.markdown("---")
 
+
 # ══════════════════════════════════════════════════════════════
 #  SECTION 5 — MASTER PLAN TIMELINE
 # ══════════════════════════════════════════════════════════════
 
-st.markdown('<div class="df-section-label">The Vision</div>', unsafe_allow_html=True)
+st.markdown('<div class="df-label">The Vision</div>', unsafe_allow_html=True)
 st.markdown("## Diamond Foundry's Three-Decade Master Plan")
 
-timeline_data = [
+timeline = [
     ("2013", "Introduce sustainably created diamond wherever mined diamond has been able to go",
      "Diamond Foundry launched with lab-grown gems — proving that diamonds could be created "
      "from methane using green energy, with zero mining. Today: 26% market share of rough diamonds."),
@@ -975,14 +984,15 @@ timeline_data = [
      "The ultimate vision: diamond-based semiconductor devices. Not just thermal substrates, "
      "but active diamond electronics — unlocking the full 17,200× semiconductor figure of merit."),
 ]
-for year, headline, desc in timeline_data:
+for year, headline, desc in timeline:
     st.markdown(f"""
-    <div class="df-timeline-item">
-        <div class="df-timeline-year">{year}</div>
-        <div style="font-size: 1.05rem; font-weight: 600; color: {DF_BLACK}; margin: 4px 0 8px 0;">{headline}</div>
-        <div class="df-timeline-text">{desc}</div>
+    <div class="df-tl-item">
+        <div class="df-tl-year">{year}</div>
+        <div class="df-tl-headline">{headline}</div>
+        <div class="df-tl-text">{desc}</div>
     </div>
     """, unsafe_allow_html=True)
+
 
 # ══════════════════════════════════════════════════════════════
 #  FOOTER
@@ -990,18 +1000,16 @@ for year, headline, desc in timeline_data:
 
 st.markdown(f"""
 <div class="df-footer">
-    <div style="margin-bottom: 16px; display: flex; justify-content: center;">
-        {df_logo_full(DF_GREY, "280px")}
+    <div style="margin-bottom:16px;display:flex;justify-content:center;">
+        {logo_full("rgba(255,255,255,0.4)", "280px")}
     </div>
-    <div style="font-size: 0.85rem; color: rgba(255,255,255,0.5); line-height: 1.6;">
+    <div style="font-size:14px;color:rgba(255,255,255,0.3);line-height:1.7;">
         Empowering mega-tech industry to shape the future.<br>
         <a href="https://www.df.com" target="_blank"
-           style="color: {DF_ORANGE}; text-decoration: none;">df.com</a>
+           style="color:{DF_ORANGE};text-decoration:none;">df.com</a>
     </div>
-    <div style="font-size: 0.7rem; color: rgba(255,255,255,0.25); margin-top: 16px;">
-        Interactive demo built for illustrative purposes. Data sourced from Diamond Foundry
-        public materials, IEA, and industry estimates.<br>
-        Projections are modeled estimates and do not represent guaranteed outcomes.
+    <div style="margin-top:24px;font-size:12px;color:rgba(255,255,255,0.15);">
+        Interactive tool built for Diamond Foundry
     </div>
 </div>
 """, unsafe_allow_html=True)
