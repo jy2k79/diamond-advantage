@@ -62,6 +62,10 @@ def svg_icon(name, size=32, color=DF_BLACK):
         "layers": f'<svg width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>',
         "cpu": f'<svg width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>',
         "arrow-right": f'<svg width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
+        "car": f'<svg width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M5 17a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1l2-3h8l2 3h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2M5 17a2 2 0 1 0 4 0M19 17a2 2 0 1 0-4 0"/></svg>',
+        "home": f'<svg width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+        "pool": f'<svg width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/><path d="M2 17c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/><path d="M7 4v8"/><path d="M17 4v8"/><path d="M7 8h10"/></svg>',
+        "tree": f'<svg width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-7"/><path d="M9 15l-3-3h4l-3-4h5l-2-4h6l-2 4h5l-3 4h4l-3 3"/></svg>',
     }
     return icons.get(name, "")
 
@@ -449,7 +453,59 @@ st.markdown(f"""
         margin-top: 8px;
     }}
 
-    /* ── Equivalency cards ── */
+    /* ── Impact cards (visual, icon-driven) ── */
+    .df-impact-card {{
+        background: {DF_WHITE};
+        border: 1px solid rgba(226,226,226,0.5);
+        border-radius: 20px;
+        padding: 28px 16px 24px 16px;
+        text-align: center;
+        height: 100%;
+        box-sizing: border-box;
+        position: relative;
+        overflow: hidden;
+    }}
+    .df-impact-card::before {{
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+        background: {DF_ORANGE};
+        border-radius: 20px 20px 0 0;
+    }}
+    .df-impact-icon {{
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: rgba(255,85,50,0.08);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 14px;
+    }}
+    .df-impact-big {{
+        font-family: 'Inter', sans-serif;
+        font-size: 36px;
+        font-weight: 400;
+        color: {DF_ORANGE};
+        letter-spacing: -0.04em;
+        line-height: 1;
+    }}
+    .df-impact-headline {{
+        font-size: 15px;
+        font-weight: 500;
+        color: {DF_BLACK};
+        margin-top: 6px;
+        line-height: 1.3;
+    }}
+    .df-impact-sub {{
+        font-size: 13px;
+        color: {DF_BODY};
+        margin-top: 4px;
+        line-height: 1.5;
+    }}
+
+    /* ── Legacy equiv classes (kept for compat) ── */
     .df-equiv-card {{
         background: rgba(255,85,50,0.04);
         border: 1px solid rgba(255,85,50,0.12);
@@ -935,7 +991,7 @@ def calculator_fragment():
         st.markdown(f'<div style="text-align:center;font-size:14px;color:{DF_COOL};margin-top:-8px;font-weight:500;">52°C cooler. Full performance, no throttling.</div>', unsafe_allow_html=True)
 
     # ══════════════════════════════════════════════════════
-    #  2. THE WIN — savings-only storytelling
+    #  2. THE WIN — pure emotional storytelling
     # ══════════════════════════════════════════════════════
     equiv_cars   = saved_co2 / 4.6
     equiv_homes  = saved_mwh / 10.5
@@ -947,10 +1003,10 @@ def calculator_fragment():
     # ── Hero savings number ──
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown(f"""
-    <div style="text-align:center;padding:40px 0 20px 0;">
+    <div style="text-align:center;padding:48px 0 12px 0;">
         <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:{DF_BODY};text-transform:uppercase;letter-spacing:0.05em;
                     animation:dfSlide{_a} 0.4s ease-out both;">
-            Annual savings with Diamond Foundry
+            Switch to diamond. Save this much every year.
         </div>
         <div style="animation:dfPop{_a} 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.1s both;">
             <span class="df-savings-hero">${saved_cost / 1e6:,.1f}M</span>
@@ -962,70 +1018,81 @@ def calculator_fragment():
     </div>
     """, unsafe_allow_html=True)
 
-    # ── 4 emotional impact cards via st.columns ──
+    # ── 4 visual impact cards with icons + animated ring ──
     st.markdown("<br>", unsafe_allow_html=True)
+
+    # SVG circular progress ring helper
+    def ring_svg(pct, color=DF_ORANGE, size=72, stroke=5):
+        """SVG donut ring that fills to pct%. Animated via stroke-dashoffset."""
+        r = (size - stroke) / 2
+        circ = 2 * 3.14159 * r
+        offset = circ * (1 - min(pct, 100) / 100)
+        return f'''<svg width="{size}" height="{size}" viewBox="0 0 {size} {size}" style="transform:rotate(-90deg);">
+            <circle cx="{size/2}" cy="{size/2}" r="{r}" fill="none" stroke="rgba(226,226,226,0.3)" stroke-width="{stroke}"/>
+            <circle cx="{size/2}" cy="{size/2}" r="{r}" fill="none" stroke="{color}" stroke-width="{stroke}"
+                    stroke-dasharray="{circ}" stroke-dashoffset="{offset}"
+                    stroke-linecap="round"
+                    style="transition:stroke-dashoffset 1.2s cubic-bezier(0.34,1.56,0.64,1);"/>
+        </svg>'''
+
+    # Max references for ring fill (100k GPUs, 1500W, PUE 1.6)
+    max_co2_saved  = (100_000*1500/1000*1.6*HOURS_PER_YEAR/1000) * CARBON_INTENSITY * COOLING_FRACTION * COOLING_REDUCTION
+    max_mwh_saved  = (100_000*1500/1000*1.6*HOURS_PER_YEAR/1000) * COOLING_FRACTION * COOLING_REDUCTION
+    max_water_gal  = ((100_000*1500/1000*0.6)*HOURS_PER_YEAR/1000*WATER_M3_PER_MWH*264.172) * COOLING_REDUCTION
+    max_trees      = max_co2_saved / 0.022
+
+    ring_cars_pct  = (equiv_cars / (max_co2_saved/4.6)) * 100 if max_co2_saved > 0 else 0
+    ring_homes_pct = (equiv_homes / (max_mwh_saved/10.5)) * 100 if max_mwh_saved > 0 else 0
+    ring_pools_pct = (equiv_pools / (max_water_gal/660_000)) * 100 if max_water_gal > 0 else 0
+    ring_trees_pct = (equiv_trees / max_trees) * 100 if max_trees > 0 else 0
+
     ec1, ec2, ec3, ec4 = st.columns(4)
 
-    card_data = [
-        (ec1, f"{equiv_cars:,.0f}", "cars removed", "from the road for a year", 0.2),
-        (ec2, f"{equiv_homes:,.0f}", "homes powered", "for a full year", 0.3),
-        (ec3, f"{equiv_pools:,.0f}", "Olympic pools", "of water conserved", 0.4),
-        (ec4, f"{equiv_trees / 1000:,.0f}K", "trees planted", "worth of CO₂ absorbed", 0.5),
+    card_items = [
+        (ec1, "car",  f"{equiv_cars:,.0f}",          "cars removed",   "from the road for a year",     ring_cars_pct,  0.2),
+        (ec2, "home", f"{equiv_homes:,.0f}",          "homes powered",  "with clean energy for a year", ring_homes_pct, 0.3),
+        (ec3, "pool", f"{equiv_pools:,.0f}",          "Olympic pools",  "of cooling water saved",       ring_pools_pct, 0.4),
+        (ec4, "tree", f"{equiv_trees / 1000:,.0f}K",  "trees planted",  "worth of CO₂ absorbed",        ring_trees_pct, 0.5),
     ]
-    for (col, num, line1, line2, delay) in card_data:
+    for (col, icon_name, num, headline, subtitle, ring_pct, delay) in card_items:
         with col:
             st.markdown(f"""
-            <div class="df-equiv-card" style="animation:dfPop{_a} 0.7s cubic-bezier(0.34,1.56,0.64,1) {delay}s both;">
-                <div class="df-equiv-num" style="color:{DF_ORANGE};">{num}</div>
-                <div style="font-size:14px;font-weight:500;color:{DF_BLACK};margin-top:4px;">{line1}</div>
-                <div class="df-equiv-desc">{line2}</div>
+            <div class="df-impact-card" style="animation:dfPop{_a} 0.7s cubic-bezier(0.34,1.56,0.64,1) {delay}s both;">
+                <div style="position:relative;display:inline-block;margin-bottom:8px;">
+                    {ring_svg(ring_pct)}
+                    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);">
+                        {svg_icon(icon_name, 28, DF_ORANGE)}
+                    </div>
+                </div>
+                <div class="df-impact-big">{num}</div>
+                <div class="df-impact-headline">{headline}</div>
+                <div class="df-impact-sub">{subtitle}</div>
             </div>
             """, unsafe_allow_html=True)
 
-    # ── Savings breakdown bar (single bar, absolute-sized) ──
-    # This bar grows/shrinks with slider changes — emotional visual of savings scale.
-    # Max reference = max slider config (100k GPUs, 1500W, PUE 1.6)
-    max_possible_mwh = (100_000 * 1500 / 1000) * 1.6 * HOURS_PER_YEAR / 1000
-    max_possible_savings = max_possible_mwh * COOLING_FRACTION * COOLING_REDUCTION
+    # ── Savings energy bar (absolute-sized, grows with sliders) ──
+    max_possible_savings = max_mwh_saved
     savings_pct = min((saved_mwh / max_possible_savings) * 100, 100) if max_possible_savings > 0 else 0
 
     st.markdown(f"""
-    <div style="margin:32px 0;animation:dfSlide{_a} 0.5s ease-out 0.5s both;">
+    <div style="margin:36px 0 16px 0;animation:dfSlide{_a} 0.5s ease-out 0.6s both;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-            <div class="df-bar-label">Energy Saved</div>
-            <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;color:{DF_ORANGE};font-weight:600;">
-                {saved_mwh:,.0f} MWh/year
+            <div class="df-bar-label">Your impact potential</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:{DF_ORANGE};font-weight:600;
+                        background:rgba(255,85,50,0.08);padding:3px 12px;border-radius:999px;">
+                -{pct_co2:.0f}% carbon
             </div>
         </div>
-        <div class="df-bar-track" style="height:44px;border-radius:10px;">
+        <div class="df-bar-track" style="height:40px;border-radius:10px;">
             <div class="df-bar-fill" style="--tw:{savings_pct:.1f}%;width:{savings_pct:.1f}%;background:linear-gradient(90deg,{DF_ORANGE},#FF7A5C);border-radius:10px;height:100%;
-                        animation:dfGrow{_a} 1.1s cubic-bezier(0.34,1.56,0.64,1) 0.6s both;">
-                <span style="color:{DF_WHITE};font-size:13px;font-weight:500;padding-left:4px;">
-                    {pct_co2:.0f}% less carbon
+                        animation:dfGrow{_a} 1.2s cubic-bezier(0.34,1.56,0.64,1) 0.7s both;">
+                <span style="color:{DF_WHITE};font-size:13px;font-weight:500;padding-left:8px;">
+                    {saved_mwh:,.0f} MWh saved per year
                 </span>
             </div>
         </div>
-        <div style="display:flex;justify-content:space-between;margin-top:6px;">
-            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(34,30,30,0.3);">0</div>
-            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(34,30,30,0.3);">Max potential savings</div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # ── Summary stats row ──
-    st.markdown(f"""
-    <div style="display:flex;justify-content:center;gap:40px;padding:20px 0;flex-wrap:wrap;animation:dfSlide{_a} 0.4s ease-out 0.7s both;">
-        <div style="text-align:center;">
-            <div style="font-size:24px;font-weight:400;color:{DF_BLACK};letter-spacing:-0.03em;">{saved_co2:,.0f}</div>
-            <div class="df-impact-label">tons CO₂ avoided</div>
-        </div>
-        <div style="text-align:center;">
-            <div style="font-size:24px;font-weight:400;color:{DF_BLACK};letter-spacing:-0.03em;">{saved_gal / 1e6:,.1f}M</div>
-            <div class="df-impact-label">gallons water saved</div>
-        </div>
-        <div style="text-align:center;">
-            <div style="font-size:24px;font-weight:400;color:{DF_BLACK};letter-spacing:-0.03em;">-{pct_water:.0f}%</div>
-            <div class="df-impact-label">cooling water reduction</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(34,30,30,0.25);margin-top:6px;text-align:right;">
+            Move the sliders up to see the bar grow
         </div>
     </div>
     """, unsafe_allow_html=True)
