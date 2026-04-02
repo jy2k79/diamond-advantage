@@ -972,7 +972,7 @@ def calculator_fragment():
         (ec3, f"{equiv_pools:,.0f}", "Olympic pools", "of water conserved", 0.4),
         (ec4, f"{equiv_trees / 1000:,.0f}K", "trees planted", "worth of CO₂ absorbed", 0.5),
     ]
-    for col, (num, line1, line2, delay) in card_data:
+    for (col, num, line1, line2, delay) in card_data:
         with col:
             st.markdown(f"""
             <div class="df-equiv-card" style="animation:dfPop{_a} 0.7s cubic-bezier(0.34,1.56,0.64,1) {delay}s both;">
