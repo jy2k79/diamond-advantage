@@ -33,30 +33,15 @@ DF_BG_CARD = "#221E1E"               # dark cards (calculator, footer)
 # DF LOGOS — SVG marks matching df.com
 # ──────────────────────────────────────────────────────────────
 
-DF_LOGO_COMPACT = """
-<svg viewBox="0 0 80 28" xmlns="http://www.w3.org/2000/svg">
-  <text x="0" y="21" style="font-family:'Inter',sans-serif;font-size:20px;font-weight:600;letter-spacing:0.15em;fill:{color};">D</text>
-  <polygon points="38,3 48,14 38,25 28,14" fill="none" stroke="{color}" stroke-width="1.6"/>
-  <text x="56" y="21" style="font-family:'Inter',sans-serif;font-size:20px;font-weight:600;letter-spacing:0.15em;fill:{color};">F</text>
-</svg>
-"""
+# Real DF logo image files (provided by DF)
+import os, base64
+LOGO_SHORT = os.path.join(os.path.dirname(__file__), "DF short logo.png")
+LOGO_FULL  = os.path.join(os.path.dirname(__file__), "DF Logo on White.png")
 
-DF_LOGO_FULL = """
-<svg viewBox="0 0 420 28" xmlns="http://www.w3.org/2000/svg">
-  <style>.df-wm{{font-family:'Inter',sans-serif;font-size:14px;font-weight:500;letter-spacing:0.28em;fill:{color};}}</style>
-  <text x="0" y="18" class="df-wm">DIAMOND</text>
-  <polygon points="218,2 228,14 218,26 208,14" fill="none" stroke="{color}" stroke-width="1.5"/>
-  <text x="245" y="18" class="df-wm">FOUNDRY</text>
-</svg>
-"""
-
-def logo_compact(color=DF_BLACK, width="70px"):
-    svg = DF_LOGO_COMPACT.replace("{color}", color)
-    return f'<div style="width:{width};display:inline-block;">{svg}</div>'
-
-def logo_full(color=DF_BLACK, width="280px"):
-    svg = DF_LOGO_FULL.replace("{color}", color)
-    return f'<div style="width:{width};">{svg}</div>'
+def logo_b64(path):
+    """Return base64 data URI for embedding logo in HTML (needed for footer on dark bg)."""
+    with open(path, "rb") as f:
+        return f"data:image/png;base64,{base64.b64encode(f.read()).decode()}"
 
 
 # ──────────────────────────────────────────────────────────────
@@ -443,6 +428,122 @@ st.markdown(f"""
         margin-top: 8px;
         line-height: 1.4;
     }}
+
+    /* ══════════════════════════════════════════════════════
+       TABLET  (≤960px) — process step arrows hide early
+       ══════════════════════════════════════════════════════ */
+    @media (max-width: 960px) {{
+        .df-step-arrow-sep {{
+            display: none !important;
+        }}
+    }}
+
+    /* ══════════════════════════════════════════════════════
+       MOBILE RESPONSIVE  (≤768px)
+       ══════════════════════════════════════════════════════ */
+    @media (max-width: 768px) {{
+        .main .block-container {{
+            padding-top: 1rem;
+            padding-bottom: 2rem;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }}
+
+        /* Headings scale down */
+        h1 {{
+            font-size: 36px !important;
+            line-height: 38px !important;
+            letter-spacing: -0.03em !important;
+        }}
+        h2 {{
+            font-size: 24px !important;
+            line-height: 30px !important;
+        }}
+        h3 {{
+            font-size: 20px !important;
+        }}
+
+        /* Hero stats: 2×2 grid */
+        .df-stat-num {{
+            font-size: 36px !important;
+        }}
+        .df-stat-label {{
+            font-size: 12px !important;
+        }}
+
+        /* Metric cards: slightly less padding */
+        [data-testid="stMetric"] {{
+            padding: 18px 20px;
+            min-height: 110px;
+        }}
+        [data-testid="stMetricValue"] {{
+            font-size: 1.6rem !important;
+        }}
+
+        /* Process steps: vertical stack */
+        .df-step {{
+            padding: 20px 16px;
+        }}
+        .df-step-title {{
+            font-size: 14px;
+        }}
+        .df-step-desc {{
+            font-size: 12px;
+        }}
+
+        /* Savings banner numbers */
+        .df-impact-num {{
+            font-size: 28px !important;
+        }}
+
+        /* Global cards */
+        .df-global-card {{
+            padding: 24px 16px;
+            min-height: 140px;
+        }}
+        .df-global-num {{
+            font-size: 32px !important;
+        }}
+
+        /* Timeline */
+        .df-tl-year {{
+            font-size: 24px;
+        }}
+
+        /* Footer: less negative margin */
+        .df-footer {{
+            margin-left: -1rem;
+            margin-right: -1rem;
+            padding: 36px 16px 20px 16px;
+        }}
+
+        /* Dividers: less vertical margin */
+        hr {{
+            margin: 2rem 0;
+        }}
+    }}
+
+    /* ══════════════════════════════════════════════════════
+       SMALL MOBILE  (≤480px)
+       ══════════════════════════════════════════════════════ */
+    @media (max-width: 480px) {{
+        h1 {{
+            font-size: 28px !important;
+            line-height: 32px !important;
+        }}
+        .df-stat-num {{
+            font-size: 28px !important;
+        }}
+        [data-testid="stMetricValue"] {{
+            font-size: 1.3rem !important;
+        }}
+        .df-impact-num {{
+            font-size: 24px !important;
+        }}
+        .df-global-num {{
+            font-size: 28px !important;
+        }}
+    }}
 </style>
 """, unsafe_allow_html=True)
 
@@ -457,13 +558,13 @@ def check_password():
         return True
     if st.session_state.get("authenticated"):
         return True
-    st.markdown(f"""
-    <div style="max-width:360px;margin:120px auto 0;text-align:center;">
-        {logo_compact(DF_BLACK, "80px")}
-        <h2 style="margin-top:20px;font-size:24px;">The Diamond Advantage</h2>
-        <p class="df-body" style="margin:0 auto;">Enter password to continue</p>
-    </div>
-    """, unsafe_allow_html=True)
+    col_pw_l, col_pw_c, col_pw_r = st.columns([1, 1, 1])
+    with col_pw_c:
+        st.image(LOGO_SHORT, width=80)
+        st.markdown('<h2 style="font-size:24px;text-align:center;">The Diamond Advantage</h2>',
+                    unsafe_allow_html=True)
+        st.markdown('<p class="df-body" style="text-align:center;">Enter password to continue</p>',
+                    unsafe_allow_html=True)
     c1, c2, c3 = st.columns([1, 1, 1])
     with c2:
         pw = st.text_input("Password", type="password", label_visibility="collapsed")
@@ -483,11 +584,7 @@ if not check_password():
 #  SECTION 0 — HERO
 # ══════════════════════════════════════════════════════════════
 
-st.markdown(f"""
-<div style="margin-bottom:20px;">
-    {logo_compact(DF_BLACK, "70px")}
-</div>
-""", unsafe_allow_html=True)
+st.image(LOGO_SHORT, width=70)
 
 st.markdown("""
 <h1>What if we could cool AI<br>
@@ -504,22 +601,22 @@ the most thermally conductive material on Earth. Grown from captured methane gre
 """, unsafe_allow_html=True)
 
 # Hero stats — clean, typography-driven (like df.com)
+st.markdown("<br>", unsafe_allow_html=True)
+hero_cols = st.columns(4)
 hero_data = [
     ("17,200×", "Semiconductor figure of merit vs silicon"),
     ("2,200+", "W/mK thermal conductivity"),
     ("52°C", "Chip temperature reduction"),
     ("3.7×", "Higher power density"),
 ]
-hero_html = ""
-for val, label in hero_data:
-    hero_html += f"""
-    <div style="flex:1;min-width:180px;padding:20px 0;">
-        <div class="df-stat-num">{val}</div>
-        <div class="df-stat-label">{label}</div>
-    </div>
-    """
-st.markdown(f'<div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:16px;">{hero_html}</div>',
-            unsafe_allow_html=True)
+for col, (val, label) in zip(hero_cols, hero_data):
+    with col:
+        st.markdown(f"""
+        <div style="padding:12px 0;">
+            <div class="df-stat-num">{val}</div>
+            <div class="df-stat-label">{label}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
 st.markdown("---")
 
@@ -531,6 +628,7 @@ st.markdown("---")
 st.markdown('<div class="df-label">The Problem</div>', unsafe_allow_html=True)
 st.markdown("## The AI Infrastructure Crisis")
 
+crisis_cols = st.columns(3)
 crisis_data = [
     ("bolt", "Power Hungry",
      "Global data centers consumed ~460 TWh in 2024. "
@@ -545,17 +643,15 @@ crisis_data = [
      "of water daily for cooling. Training one large AI model "
      "can exceed 300 tons of CO₂."),
 ]
-crisis_html = ""
-for icon, title, desc in crisis_data:
-    crisis_html += f"""
-    <div style="flex:1;min-width:250px;padding:24px 0;">
-        <div style="margin-bottom:16px;">{svg_icon(icon, 28, "rgba(34,30,30,0.3)")}</div>
-        <div style="font-size:18px;font-weight:500;color:{DF_BLACK};margin-bottom:12px;">{title}</div>
-        <div style="font-size:16px;color:{DF_BODY};line-height:1.7;">{desc}</div>
-    </div>
-    """
-st.markdown(f'<div style="display:flex;gap:32px;flex-wrap:wrap;">{crisis_html}</div>',
-            unsafe_allow_html=True)
+for col, (icon, title, desc) in zip(crisis_cols, crisis_data):
+    with col:
+        st.markdown(f"""
+        <div style="padding:24px 0;">
+            <div style="margin-bottom:16px;">{svg_icon(icon, 28, "rgba(34,30,30,0.3)")}</div>
+            <div style="font-size:18px;font-weight:500;color:{DF_BLACK};margin-bottom:12px;">{title}</div>
+            <div style="font-size:16px;color:{DF_BODY};line-height:1.7;">{desc}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
 # Thermal conductivity chart
 st.markdown("<br>", unsafe_allow_html=True)
@@ -608,12 +704,11 @@ traditional silicon substrates to Diamond Foundry's single-crystal diamond techn
 """, unsafe_allow_html=True)
 
 
-# Inject JS to make sliders fire updates during drag (debounced)
+# Inject JS to make sliders fire updates during drag (works on desktop + mobile touch)
 st.markdown("""
 <script>
 (function() {
-    // Wait for sliders to mount, then attach live-drag listeners
-    const DEBOUNCE_MS = 120;
+    const DEBOUNCE_MS = 150;
     let timers = {};
 
     function attachLiveDrag() {
@@ -622,22 +717,21 @@ st.markdown("""
             if (thumb.dataset.liveDrag) return;
             thumb.dataset.liveDrag = "true";
 
-            // Watch for aria-valuenow changes during drag via MutationObserver
             const observer = new MutationObserver(() => {
                 clearTimeout(timers[idx]);
                 timers[idx] = setTimeout(() => {
-                    // Simulate mouseup to trigger Streamlit value commit
+                    // Dispatch both mouse and touch end events for cross-device support
                     thumb.dispatchEvent(new MouseEvent('mouseup', {bubbles: true}));
+                    thumb.dispatchEvent(new TouchEvent('touchend', {bubbles: true}));
                 }, DEBOUNCE_MS);
             });
             observer.observe(thumb, {attributes: true, attributeFilter: ['aria-valuenow']});
         });
     }
 
-    // Re-attach after Streamlit re-renders
-    const bodyObserver = new MutationObserver(() => { setTimeout(attachLiveDrag, 200); });
+    const bodyObserver = new MutationObserver(() => { setTimeout(attachLiveDrag, 300); });
     bodyObserver.observe(document.body, {childList: true, subtree: true});
-    setTimeout(attachLiveDrag, 500);
+    setTimeout(attachLiveDrag, 800);
 })();
 </script>
 """, unsafe_allow_html=True)
@@ -873,13 +967,13 @@ for i, (icon, title, desc) in enumerate(steps):
     """)
     if i < len(steps) - 1:
         step_html_items.append(f"""
-        <div style="display:flex;align-items:center;padding:0 4px;color:rgba(255,255,255,0.2);flex-shrink:0;">
+        <div class="df-step-arrow-sep" style="display:flex;align-items:center;padding:0 4px;flex-shrink:0;">
             {svg_icon("arrow-right", 18, "rgba(34,30,30,0.15)")}
         </div>
         """)
 
 st.markdown(f"""
-<div style="display:flex;gap:8px;align-items:stretch;">
+<div style="display:flex;gap:8px;align-items:stretch;flex-wrap:wrap;">
     {"".join(step_html_items)}
 </div>
 """, unsafe_allow_html=True)
@@ -937,6 +1031,7 @@ g_water_bgal = g_cooling_twh * 1e6 * WATER_M3_PER_MWH * 264.172 / 1e9
 g_homes = g_saved_twh * 1e6 / 10.5
 g_cars = g_co2_mt * 1e6 / 4.6
 
+g_cols = st.columns(4)
 global_stats = [
     (f"{g_saved_twh:.1f}", "TWh", "Energy saved annually",
      "Equivalent to powering a small country"),
@@ -947,23 +1042,16 @@ global_stats = [
     (f"{g_homes/1e6:.1f}M", "homes", "Equivalent energy freed",
      "Redirected from cooling to useful compute"),
 ]
-
-global_cards_html = ""
-for num, unit, label, sublabel in global_stats:
-    global_cards_html += f"""
-    <div class="df-global-card" style="flex:1;min-width:200px;">
-        <div class="df-global-num">{num}</div>
-        <div class="df-global-unit">{unit}</div>
-        <div class="df-global-label">{label}</div>
-        <div class="df-global-sub">{sublabel}</div>
-    </div>
-    """
-
-st.markdown(f"""
-<div style="display:flex;gap:16px;flex-wrap:wrap;">
-    {global_cards_html}
-</div>
-""", unsafe_allow_html=True)
+for col, (num, unit, label, sublabel) in zip(g_cols, global_stats):
+    with col:
+        st.markdown(f"""
+        <div class="df-global-card">
+            <div class="df-global-num">{num}</div>
+            <div class="df-global-unit">{unit}</div>
+            <div class="df-global-label">{label}</div>
+            <div class="df-global-sub">{sublabel}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
 # Growth projection chart
 st.markdown("<br>", unsafe_allow_html=True)
@@ -1047,7 +1135,8 @@ for year, headline, desc in timeline:
 st.markdown(f"""
 <div class="df-footer">
     <div style="margin-bottom:16px;display:flex;justify-content:center;">
-        {logo_full("rgba(255,255,255,0.4)", "280px")}
+        <img src="{logo_b64(LOGO_FULL)}" alt="Diamond Foundry"
+             style="width:260px;opacity:0.4;filter:invert(1);" />
     </div>
     <div style="font-size:14px;color:rgba(255,255,255,0.3);line-height:1.7;">
         Empowering mega-tech industry to shape the future.<br>
