@@ -935,194 +935,100 @@ def calculator_fragment():
         st.markdown(f'<div style="text-align:center;font-size:14px;color:{DF_COOL};margin-top:-8px;font-weight:500;">52°C cooler. Full performance, no throttling.</div>', unsafe_allow_html=True)
 
     # ══════════════════════════════════════════════════════
-    #  2. EMOTIONAL COMPARISON BARS — absolute sizing
+    #  2. THE WIN — savings-only storytelling
     # ══════════════════════════════════════════════════════
-    #
-    # Absolute max reference: 100k GPUs × 1500W × PUE 1.6
-    # Bars scale against this so they visibly grow/shrink
-    # when you move sliders.
-    ABS_MAX_KW   = (100_000 * 1500 / 1000) * 1.6          # 240,000 kW
-    ABS_MAX_MWH  = ABS_MAX_KW * HOURS_PER_YEAR / 1000     # ~2,102,400 MWh
-    ABS_MAX_CO2  = ABS_MAX_MWH * CARBON_INTENSITY          # ~809,424 tons
-    ABS_MAX_COOL = (ABS_MAX_KW - 100_000*1500/1000)        # 90,000 kW cooling
-    ABS_MAX_WAT  = ABS_MAX_COOL * HOURS_PER_YEAR / 1000 * WATER_M3_PER_MWH  # water
+    equiv_cars   = saved_co2 / 4.6
+    equiv_homes  = saved_mwh / 10.5
+    equiv_pools  = saved_gal / 660_000
+    equiv_trees  = saved_co2 / 0.022
+    pct_co2      = (saved_co2 / annual_co2 * 100) if annual_co2 > 0 else 0
+    pct_water    = (saved_water / annual_water * 100) if annual_water > 0 else 0
 
-    # Real-world equivalencies
-    equiv_cars_trad  = annual_co2 / 4.6
-    equiv_cars_dia   = d_co2 / 4.6
-    equiv_homes_trad = annual_mwh / 10.5
-    equiv_homes_dia  = d_annual_mwh / 10.5
-    equiv_pools_trad = (annual_water * 264.172) / 660_000
-    equiv_pools_dia  = (d_water * 264.172) / 660_000
-
+    # ── Hero savings number ──
     st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown(f'<div class="df-label">The Real-World Impact</div>', unsafe_allow_html=True)
-
-    def impact_bar(emoji_txt, label, trad_val, dia_val, trad_desc, dia_desc, abs_max, delay_ms, color_trad="rgba(34,30,30,0.18)", color_dia=DF_ORANGE):
-        """Render an animated bar pair with absolute width scaling and emotional labels."""
-        trad_pct = min((trad_val / abs_max) * 100, 100) if abs_max > 0 else 0
-        dia_pct  = min((dia_val / abs_max) * 100, 100) if abs_max > 0 else 0
-        reduction = ((trad_val - dia_val) / trad_val * 100) if trad_val > 0 else 0
-        st.markdown(f"""
-        <div style="margin-bottom:28px;animation:dfSlide{_a} 0.5s ease-out {delay_ms}ms both;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                <div style="font-size:15px;font-weight:500;color:{DF_BLACK};">{emoji_txt} {label}</div>
-                <div style="animation:dfPop{_a} 0.6s cubic-bezier(0.34,1.56,0.64,1) {delay_ms + 500}ms both;
-                            font-family:'IBM Plex Mono',monospace;font-size:14px;color:{DF_ORANGE};font-weight:600;
-                            background:rgba(255,85,50,0.08);padding:2px 10px;border-radius:999px;">
-                    -{reduction:.0f}%
-                </div>
-            </div>
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-                <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(34,30,30,0.35);width:58px;text-align:right;flex-shrink:0;">SILICON</div>
-                <div class="df-bar-track" style="flex:1;">
-                    <div class="df-bar-fill" style="--tw:{trad_pct:.1f}%;width:{trad_pct:.1f}%;background:{color_trad};
-                                animation:dfGrow{_a} 0.9s cubic-bezier(0.34,1.56,0.64,1) {delay_ms + 100}ms both;">
-                        <span style="color:rgba(34,30,30,0.5);font-size:12px;white-space:nowrap;">{trad_desc}</span>
-                    </div>
-                </div>
-            </div>
-            <div style="display:flex;align-items:center;gap:10px;">
-                <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:{DF_ORANGE};width:58px;text-align:right;flex-shrink:0;">DIAMOND</div>
-                <div class="df-bar-track" style="flex:1;">
-                    <div class="df-bar-fill" style="--tw:{dia_pct:.1f}%;width:{dia_pct:.1f}%;background:{color_dia};
-                                animation:dfGrow{_a} 0.9s cubic-bezier(0.34,1.56,0.64,1) {delay_ms + 250}ms both;">
-                        <span style="color:{DF_WHITE};font-size:12px;white-space:nowrap;">{dia_desc}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    impact_bar("", "Energy Consumed",
-               annual_mwh, d_annual_mwh,
-               f"{equiv_homes_trad:,.0f} homes worth",
-               f"{equiv_homes_dia:,.0f} homes worth",
-               ABS_MAX_MWH, 0)
-
-    impact_bar("", "Carbon Emissions",
-               annual_co2, d_co2,
-               f"{equiv_cars_trad:,.0f} cars on the road",
-               f"{equiv_cars_dia:,.0f} cars on the road",
-               ABS_MAX_CO2, 150)
-
-    impact_bar("", "Water Usage",
-               annual_water * 264.172, d_water * 264.172,
-               f"{equiv_pools_trad:,.0f} Olympic pools",
-               f"{equiv_pools_dia:,.0f} Olympic pools",
-               ABS_MAX_WAT * 264.172, 300)
-
-    impact_bar("", "Facility Power",
-               facility_kw, d_facility_kw,
-               f"{facility_kw:,.0f} kW",
-               f"{d_facility_kw:,.0f} kW",
-               ABS_MAX_KW, 450)
-
-    # ══════════════════════════════════════════════════════
-    #  3. BIG SAVINGS MOMENT (pure CSS — no JS)
-    # ══════════════════════════════════════════════════════
-    st.markdown("<br>", unsafe_allow_html=True)
-    equiv_cars_saved = saved_co2 / 4.6
-    equiv_homes_saved = saved_mwh / 10.5
-    equiv_pools_saved = saved_gal / 660_000
-    equiv_trees_saved = saved_co2 / 0.022
-
     st.markdown(f"""
-    <div style="border-top:2px solid {DF_ORANGE};border-bottom:2px solid {DF_ORANGE};padding:48px 20px;margin:8px 0;text-align:center;">
+    <div style="text-align:center;padding:40px 0 20px 0;">
         <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:{DF_BODY};text-transform:uppercase;letter-spacing:0.05em;
                     animation:dfSlide{_a} 0.4s ease-out both;">
             Annual savings with Diamond Foundry
         </div>
-        <div style="animation:dfPop{_a} 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.15s both;">
+        <div style="animation:dfPop{_a} 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.1s both;">
             <span class="df-savings-hero">${saved_cost / 1e6:,.1f}M</span>
         </div>
         <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:{DF_BODY};text-transform:uppercase;letter-spacing:0.05em;margin-top:4px;
-                    animation:dfSlide{_a} 0.4s ease-out 0.2s both;">
-            in energy costs alone
-        </div>
-        <div style="display:flex;justify-content:center;gap:32px;margin-top:36px;flex-wrap:wrap;">
-            <div style="text-align:center;min-width:120px;animation:dfPop{_a} 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.3s both;">
-                <div class="df-equiv-num" style="color:{DF_ORANGE};">{equiv_cars_saved:,.0f}</div>
-                <div class="df-equiv-desc">cars removed from roads</div>
-            </div>
-            <div style="text-align:center;min-width:120px;animation:dfPop{_a} 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.4s both;">
-                <div class="df-equiv-num" style="color:{DF_ORANGE};">{equiv_homes_saved:,.0f}</div>
-                <div class="df-equiv-desc">homes powered for a year</div>
-            </div>
-            <div style="text-align:center;min-width:120px;animation:dfPop{_a} 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.5s both;">
-                <div class="df-equiv-num" style="color:{DF_ORANGE};">{equiv_pools_saved:,.0f}</div>
-                <div class="df-equiv-desc">Olympic pools of water</div>
-            </div>
-            <div style="text-align:center;min-width:120px;animation:dfPop{_a} 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.6s both;">
-                <div class="df-equiv-num" style="color:{DF_ORANGE};">{equiv_trees_saved / 1000:,.0f}K</div>
-                <div class="df-equiv-desc">trees of carbon absorbed</div>
-            </div>
+                    animation:dfSlide{_a} 0.4s ease-out 0.15s both;">
+            in energy costs per year
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    # ══════════════════════════════════════════════════════
-    #  4. CHARTS (power breakdown + CO₂ donut)
-    # ══════════════════════════════════════════════════════
+    # ── 4 emotional impact cards via st.columns ──
     st.markdown("<br>", unsafe_allow_html=True)
-    ch1, ch2 = st.columns(2)
+    ec1, ec2, ec3, ec4 = st.columns(4)
 
-    with ch1:
-        fig_power = go.Figure()
-        fig_power.add_trace(go.Bar(
-            name='IT Load (GPUs)', x=['Traditional<br>Silicon', 'Diamond<br>Foundry SCD'],
-            y=[it_kw, it_kw], marker_color="rgba(34,30,30,0.15)", marker_cornerradius=4,
-            text=[f'{it_kw:,.0f} kW'] * 2, textposition='inside',
-            textfont=dict(color=DF_BLACK, size=12, family="Inter"),
-            hovertemplate='IT Load: %{y:,.0f} kW<extra></extra>',
-        ))
-        fig_power.add_trace(go.Bar(
-            name='Cooling Overhead', x=['Traditional<br>Silicon', 'Diamond<br>Foundry SCD'],
-            y=[cooling_kw, d_cooling_kw],
-            marker_color=["rgba(255,85,50,0.4)", DF_ORANGE], marker_cornerradius=4,
-            text=[f'{cooling_kw:,.0f} kW', f'{d_cooling_kw:,.0f} kW'],
-            textposition='inside', textfont=dict(color=DF_WHITE, size=12, family="Inter"),
-            hovertemplate='Cooling: %{y:,.0f} kW<extra></extra>',
-        ))
-        fig_power.update_layout(
-            barmode='stack', plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-            font=dict(family="Inter", color="rgba(34,30,30,0.4)", size=12),
-            height=350, margin=dict(l=20, r=20, t=40, b=20),
-            title=dict(text="Power Breakdown (kW)", font=dict(size=14, color=DF_BLACK)),
-            yaxis=dict(showgrid=True, gridcolor="rgba(226,226,226,0.5)", zeroline=False,
-                       tickfont=dict(color="rgba(34,30,30,0.4)")),
-            xaxis=dict(tickfont=dict(color=DF_BLACK, size=12)),
-            legend=dict(orientation="h", yanchor="bottom", y=-0.25, xanchor="center", x=0.5,
-                        font=dict(color="rgba(34,30,30,0.4)", size=11)),
-            bargap=0.4,
-        )
-        st.plotly_chart(fig_power, use_container_width=True, config={'displayModeBar': False})
+    card_data = [
+        (ec1, f"{equiv_cars:,.0f}", "cars removed", "from the road for a year", 0.2),
+        (ec2, f"{equiv_homes:,.0f}", "homes powered", "for a full year", 0.3),
+        (ec3, f"{equiv_pools:,.0f}", "Olympic pools", "of water conserved", 0.4),
+        (ec4, f"{equiv_trees / 1000:,.0f}K", "trees planted", "worth of CO₂ absorbed", 0.5),
+    ]
+    for col, (num, line1, line2, delay) in card_data:
+        with col:
+            st.markdown(f"""
+            <div class="df-equiv-card" style="animation:dfPop{_a} 0.7s cubic-bezier(0.34,1.56,0.64,1) {delay}s both;">
+                <div class="df-equiv-num" style="color:{DF_ORANGE};">{num}</div>
+                <div style="font-size:14px;font-weight:500;color:{DF_BLACK};margin-top:4px;">{line1}</div>
+                <div class="df-equiv-desc">{line2}</div>
+            </div>
+            """, unsafe_allow_html=True)
 
-    with ch2:
-        pct_red = (saved_co2 / annual_co2) * 100 if annual_co2 > 0 else 0
-        fig_donut = go.Figure()
-        fig_donut.add_trace(go.Pie(
-            labels=['CO₂ Avoided', 'Remaining'],
-            values=[saved_co2, d_co2], hole=0.7,
-            marker=dict(colors=[DF_ORANGE, "rgba(34,30,30,0.1)"], line=dict(width=0)),
-            textinfo='none',
-            hovertemplate='%{label}: %{value:,.0f} tons<extra></extra>',
-        ))
-        fig_donut.update_layout(
-            plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-            font=dict(family="Inter", color="rgba(34,30,30,0.4)"),
-            height=350, margin=dict(l=20, r=20, t=40, b=20),
-            title=dict(text="CO₂ Reduction Impact", font=dict(size=14, color=DF_BLACK)),
-            showlegend=True,
-            legend=dict(orientation="h", yanchor="bottom", y=-0.15, xanchor="center", x=0.5,
-                        font=dict(color="rgba(34,30,30,0.4)", size=11)),
-            annotations=[dict(
-                text=f"<b>{pct_red:.0f}%</b><br><span style='font-size:12px'>reduction</span>",
-                x=0.5, y=0.5, font=dict(size=28, color=DF_ORANGE, family="Inter"),
-                showarrow=False,
-            )],
-        )
-        st.plotly_chart(fig_donut, use_container_width=True, config={'displayModeBar': False})
+    # ── Savings breakdown bar (single bar, absolute-sized) ──
+    # This bar grows/shrinks with slider changes — emotional visual of savings scale.
+    # Max reference = max slider config (100k GPUs, 1500W, PUE 1.6)
+    max_possible_mwh = (100_000 * 1500 / 1000) * 1.6 * HOURS_PER_YEAR / 1000
+    max_possible_savings = max_possible_mwh * COOLING_FRACTION * COOLING_REDUCTION
+    savings_pct = min((saved_mwh / max_possible_savings) * 100, 100) if max_possible_savings > 0 else 0
+
+    st.markdown(f"""
+    <div style="margin:32px 0;animation:dfSlide{_a} 0.5s ease-out 0.5s both;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div class="df-bar-label">Energy Saved</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;color:{DF_ORANGE};font-weight:600;">
+                {saved_mwh:,.0f} MWh/year
+            </div>
+        </div>
+        <div class="df-bar-track" style="height:44px;border-radius:10px;">
+            <div class="df-bar-fill" style="--tw:{savings_pct:.1f}%;width:{savings_pct:.1f}%;background:linear-gradient(90deg,{DF_ORANGE},#FF7A5C);border-radius:10px;height:100%;
+                        animation:dfGrow{_a} 1.1s cubic-bezier(0.34,1.56,0.64,1) 0.6s both;">
+                <span style="color:{DF_WHITE};font-size:13px;font-weight:500;padding-left:4px;">
+                    {pct_co2:.0f}% less carbon
+                </span>
+            </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px;">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(34,30,30,0.3);">0</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(34,30,30,0.3);">Max potential savings</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ── Summary stats row ──
+    st.markdown(f"""
+    <div style="display:flex;justify-content:center;gap:40px;padding:20px 0;flex-wrap:wrap;animation:dfSlide{_a} 0.4s ease-out 0.7s both;">
+        <div style="text-align:center;">
+            <div style="font-size:24px;font-weight:400;color:{DF_BLACK};letter-spacing:-0.03em;">{saved_co2:,.0f}</div>
+            <div class="df-impact-label">tons CO₂ avoided</div>
+        </div>
+        <div style="text-align:center;">
+            <div style="font-size:24px;font-weight:400;color:{DF_BLACK};letter-spacing:-0.03em;">{saved_gal / 1e6:,.1f}M</div>
+            <div class="df-impact-label">gallons water saved</div>
+        </div>
+        <div style="text-align:center;">
+            <div style="font-size:24px;font-weight:400;color:{DF_BLACK};letter-spacing:-0.03em;">-{pct_water:.0f}%</div>
+            <div class="df-impact-label">cooling water reduction</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
 
 calculator_fragment()
