@@ -125,8 +125,8 @@ st.markdown(f"""
         font-weight: 400 !important;
     }}
     h1 {{
-        font-size: 56px !important;
-        line-height: 1 !important;
+        font-size: 64px !important;
+        line-height: 64px !important;
         letter-spacing: -0.05em !important;
     }}
     h2 {{
@@ -137,7 +137,7 @@ st.markdown(f"""
     }}
     h3 {{
         font-size: 24px !important;
-        letter-spacing: -0.03em !important;
+        letter-spacing: -0.05em !important;
     }}
 
     p, li, span, div {{
@@ -224,7 +224,7 @@ st.markdown(f"""
 
     /* ── Body text (df.com muted) ── */
     .df-body {{
-        font-size: 16px;
+        font-size: 17px;
         color: {DF_BODY};
         line-height: 1.7;
         max-width: 680px;
@@ -233,7 +233,7 @@ st.markdown(f"""
     /* ── Stat number (large, tight tracking like df.com h1) ── */
     .df-stat-num {{
         font-family: 'Inter', sans-serif;
-        font-size: 48px;
+        font-size: 56px;
         font-weight: 400;
         color: {DF_BLACK};
         letter-spacing: -0.05em;
@@ -244,7 +244,7 @@ st.markdown(f"""
         font-size: 13px;
         font-weight: 400;
         color: {DF_BODY};
-        margin-top: 6px;
+        margin-top: 8px;
     }}
 
     /* ── Dark card (calculator results, global impact) ── */
@@ -418,10 +418,10 @@ st.markdown(f"""
         justify-content: center;
     }}
     .df-global-num {{
-        font-size: 40px;
+        font-size: 44px;
         font-weight: 400;
         color: {DF_WHITE};
-        letter-spacing: -0.03em;
+        letter-spacing: -0.05em;
         line-height: 1.1;
     }}
     .df-global-unit {{
@@ -493,11 +493,11 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown(f"""
-<p class="df-body" style="margin-top:20px;">
-AI is hitting a wall — not of intelligence, but of <strong style="color:{DF_BLACK}">heat</strong>.
+<p class="df-body" style="margin-top:24px;">
+AI is hitting a wall — not of intelligence, but of heat.
 Every generation of chips runs hotter, drinks more power, and demands more cooling.
 Diamond Foundry is solving this by replacing traditional substrates with
-<strong style="color:{DF_BLACK}">single-crystal diamond</strong> — the most thermally conductive material on Earth —
+single-crystal diamond — the most thermally conductive material on Earth —
 grown from captured methane greenhouse gas.
 </p>
 """, unsafe_allow_html=True)
@@ -533,25 +533,25 @@ st.markdown("## The AI Infrastructure Crisis")
 crisis_cols = st.columns(3)
 crisis_data = [
     ("bolt", "Power Hungry",
-     f"Global data centers consumed <strong style='color:{DF_BLACK}'>~460 TWh</strong> in 2024 — "
-     f"roughly 2% of global electricity. AI workloads are projected to push this past "
-     f"<strong style='color:{DF_BLACK}'>1,000 TWh by 2028</strong>."),
+     "Global data centers consumed ~460 TWh in 2024 — "
+     "roughly 2% of global electricity. AI workloads are projected to push this past "
+     "1,000 TWh by 2028."),
     ("thermometer", "Heat Wall",
-     f"Modern AI chips like NVIDIA's B200 push <strong style='color:{DF_BLACK}'>1,000W per GPU</strong>. "
-     f"Traditional silicon substrates can't dissipate this heat fast enough, "
-     f"forcing chips to throttle and waste energy on cooling."),
+     "Modern AI chips like NVIDIA's B200 push 1,000W per GPU. "
+     "Traditional silicon substrates can't dissipate this heat fast enough, "
+     "forcing chips to throttle and waste energy on cooling."),
     ("droplet", "Water & Carbon Cost",
-     f"A single large AI data center can consume <strong style='color:{DF_BLACK}'>5+ million gallons "
-     f"of water daily</strong> for cooling. The carbon footprint of training one large AI model "
-     f"can exceed <strong style='color:{DF_BLACK}'>300 tons of CO₂</strong>."),
+     "A single large AI data center can consume 5+ million gallons "
+     "of water daily for cooling. The carbon footprint of training one large AI model "
+     "can exceed 300 tons of CO₂."),
 ]
 for col, (icon, title, desc) in zip(crisis_cols, crisis_data):
     with col:
         st.markdown(f"""
         <div style="padding:24px 0;">
-            <div style="margin-bottom:16px;">{svg_icon(icon, 28, DF_BLACK)}</div>
-            <div style="font-size:17px;font-weight:500;color:{DF_BLACK};margin-bottom:12px;">{title}</div>
-            <div style="font-size:15px;color:{DF_BODY};line-height:1.7;">{desc}</div>
+            <div style="margin-bottom:16px;">{svg_icon(icon, 28, "rgba(34,30,30,0.3)")}</div>
+            <div style="font-size:18px;font-weight:500;color:{DF_BLACK};margin-bottom:12px;">{title}</div>
+            <div style="font-size:16px;color:{DF_BODY};line-height:1.7;">{desc}</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -583,10 +583,9 @@ fig_thermal.update_layout(
 )
 st.plotly_chart(fig_thermal, use_container_width=True, config={'displayModeBar': False})
 
-st.markdown(f"""
+st.markdown("""
 <p class="df-chart-label">
-    Diamond conducts heat <span style="color:{DF_ORANGE};font-weight:500;">14.7× better than silicon</span> and
-    <span style="color:{DF_ORANGE};font-weight:500;">5.8× better than copper</span>.
+    Diamond conducts heat 14.7× better than silicon and 5.8× better than copper.
 </p>
 """, unsafe_allow_html=True)
 
@@ -806,7 +805,7 @@ st.markdown('<div class="df-label">The Process</div>', unsafe_allow_html=True)
 st.markdown("## From Greenhouse Gas to Diamond")
 st.markdown(f"""
 <p class="df-body" style="margin-bottom:32px;">
-Diamond Foundry doesn't mine diamonds — it <strong style="color:{DF_BLACK}">crystallizes them from methane</strong>,
+Diamond Foundry doesn't mine diamonds — it crystallizes them from methane,
 a potent greenhouse gas. Using proprietary plasma reactors powered by green energy,
 DF transforms a climate problem into the world's most advanced thermal substrate.
 </p>
