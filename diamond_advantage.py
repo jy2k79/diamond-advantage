@@ -28,13 +28,14 @@ DF_WHITE   = "#FFFFFF"
 DF_BODY    = "rgba(34,30,30,0.4)"   # body text on df.com
 DF_BORDER  = "rgba(226,226,226,0.5)" # pill borders, dividers
 DF_BG_CARD = "#221E1E"               # dark cards (calculator, footer)
+DF_COOL    = "#81D8D0"               # Tiffany blue — cool temperature accent
 
 # ──────────────────────────────────────────────────────────────
 # DF LOGOS — SVG marks matching df.com
 # ──────────────────────────────────────────────────────────────
 
 # Real DF logo image files (provided by DF)
-import os, base64
+import os, base64, random
 LOGO_SHORT = os.path.join(os.path.dirname(__file__), "DF short logo.png")
 LOGO_FULL  = os.path.join(os.path.dirname(__file__), "DF Logo on White.png")
 
@@ -483,30 +484,8 @@ st.markdown(f"""
         margin-bottom: 4px;
     }}
 
-    /* ── Animations ── */
-    @keyframes df-fade-up {{
-        from {{ opacity: 0; transform: translateY(12px); }}
-        to {{ opacity: 1; transform: translateY(0); }}
-    }}
-    .df-savings-hero {{
-        animation: df-fade-up 0.6s ease-out both;
-    }}
-    .df-equiv-card {{
-        animation: df-fade-up 0.5s ease-out both;
-    }}
-    .df-equiv-card:nth-child(1) {{ animation-delay: 0.1s; }}
-    .df-equiv-card:nth-child(2) {{ animation-delay: 0.2s; }}
-    .df-equiv-card:nth-child(3) {{ animation-delay: 0.3s; }}
-    .df-equiv-card:nth-child(4) {{ animation-delay: 0.4s; }}
-    .df-bar-fill {{
-        animation: df-bar-grow 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
-    }}
-    @keyframes df-bar-grow {{
-        from {{ width: 0% !important; }}
-    }}
-    .df-impact-num {{
-        animation: df-fade-up 0.4s ease-out both;
-    }}
+    /* Animations are injected per-render inside the calculator fragment
+       with unique IDs so the browser always replays them. */
 
     /* ── Global stat card (dark, for section 4) ── */
     .df-global-card {{
@@ -872,6 +851,47 @@ def calculator_fragment():
     saved_cost = saved_mwh * ENERGY_COST_MWH
     pct_power = (1 - d_facility_kw / facility_kw) * 100 if facility_kw > 0 else 0
 
+    # ── Inline animations (re-injected each fragment render so they replay) ──
+    _anim_id = random.randint(10000, 99999)  # unique ID forces browser to re-parse animations
+    st.markdown(f"""
+    <style>
+        @keyframes df-grow-{_anim_id} {{
+            0%   {{ width: 0%; opacity: 0.3; }}
+            60%  {{ opacity: 1; }}
+            80%  {{ width: calc(var(--target-w) + 2%); }}
+            100% {{ width: var(--target-w); }}
+        }}
+        @keyframes df-pop-{_anim_id} {{
+            0%   {{ transform: scale(0.6); opacity: 0; }}
+            50%  {{ transform: scale(1.08); }}
+            70%  {{ transform: scale(0.97); }}
+            100% {{ transform: scale(1); opacity: 1; }}
+        }}
+        @keyframes df-slide-up-{_anim_id} {{
+            0%   {{ transform: translateY(20px); opacity: 0; }}
+            100% {{ transform: translateY(0); opacity: 1; }}
+        }}
+        @keyframes df-count-flash-{_anim_id} {{
+            0%   {{ opacity: 0; transform: scale(0.8) translateY(10px); }}
+            40%  {{ opacity: 1; transform: scale(1.05) translateY(-2px); }}
+            60%  {{ transform: scale(0.98) translateY(1px); }}
+            100% {{ transform: scale(1) translateY(0); }}
+        }}
+        .df-bar-anim-{_anim_id} {{
+            animation: df-grow-{_anim_id} 1s cubic-bezier(0.34, 1.56, 0.64, 1) both !important;
+        }}
+        .df-pop-{_anim_id} {{
+            animation: df-pop-{_anim_id} 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both !important;
+        }}
+        .df-slide-{_anim_id} {{
+            animation: df-slide-up-{_anim_id} 0.5s ease-out both !important;
+        }}
+        .df-hero-anim-{_anim_id} {{
+            animation: df-count-flash-{_anim_id} 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both !important;
+        }}
+    </style>
+    """, unsafe_allow_html=True)
+
     # ══════════════════════════════════════════════════════
     #  1. TEMPERATURE GAUGES — the visual hook
     # ══════════════════════════════════════════════════════
@@ -883,80 +903,79 @@ def calculator_fragment():
         fig_g1 = go.Figure(go.Indicator(
             mode="gauge+number",
             value=PEAK_TEMP_C,
-            number=dict(suffix="°C", font=dict(size=48, family="Inter", color=DF_BLACK)),
+            number=dict(suffix="°C", font=dict(size=48, family="Inter", color="#DC2626")),
             gauge=dict(
                 axis=dict(range=[0, 120], tickwidth=1, tickcolor="rgba(34,30,30,0.15)",
                           tickfont=dict(size=11, color="rgba(34,30,30,0.3)")),
-                bar=dict(color="rgba(0,0,0,0)"),
+                bar=dict(color="#DC2626", thickness=0.75),
                 bgcolor="rgba(226,226,226,0.2)",
                 steps=[
-                    dict(range=[0, 40], color="rgba(59,130,246,0.15)"),
-                    dict(range=[40, 70], color="rgba(250,204,21,0.15)"),
-                    dict(range=[70, 90], color="rgba(251,146,60,0.2)"),
-                    dict(range=[90, 120], color="rgba(239,68,68,0.25)"),
+                    dict(range=[0, 40], color="rgba(59,130,246,0.1)"),
+                    dict(range=[40, 70], color="rgba(250,204,21,0.12)"),
+                    dict(range=[70, 90], color="rgba(251,146,60,0.18)"),
+                    dict(range=[90, 120], color="rgba(239,68,68,0.22)"),
                 ],
-                threshold=dict(line=dict(color="#DC2626", width=3), thickness=0.85, value=PEAK_TEMP_C),
+                threshold=dict(line=dict(color="#DC2626", width=4), thickness=0.85, value=PEAK_TEMP_C),
             ),
         ))
         fig_g1.update_layout(
-            height=220, margin=dict(l=30, r=30, t=20, b=10),
+            height=230, margin=dict(l=30, r=30, t=20, b=10),
             paper_bgcolor="rgba(0,0,0,0)", font=dict(family="Inter"),
         )
         st.plotly_chart(fig_g1, use_container_width=True, config={'displayModeBar': False})
-        st.markdown(f'<div style="text-align:center;font-size:14px;color:rgba(34,30,30,0.4);margin-top:-8px;">Danger zone. Chips throttle above 90°C.</div>', unsafe_allow_html=True)
+        st.markdown(f'<div style="text-align:center;font-size:14px;color:#DC2626;margin-top:-8px;font-weight:500;">Danger zone. Chips throttle above 90°C.</div>', unsafe_allow_html=True)
 
     with g2:
         st.markdown('<div class="df-temp-label">Diamond Foundry SCD</div>', unsafe_allow_html=True)
         fig_g2 = go.Figure(go.Indicator(
             mode="gauge+number",
             value=d_temp,
-            number=dict(suffix="°C", font=dict(size=48, family="Inter", color=DF_ORANGE)),
+            number=dict(suffix="°C", font=dict(size=48, family="Inter", color=DF_COOL)),
             gauge=dict(
                 axis=dict(range=[0, 120], tickwidth=1, tickcolor="rgba(34,30,30,0.15)",
                           tickfont=dict(size=11, color="rgba(34,30,30,0.3)")),
-                bar=dict(color="rgba(0,0,0,0)"),
+                bar=dict(color=DF_COOL, thickness=0.75),
                 bgcolor="rgba(226,226,226,0.2)",
                 steps=[
-                    dict(range=[0, 40], color="rgba(59,130,246,0.15)"),
-                    dict(range=[40, 70], color="rgba(250,204,21,0.15)"),
-                    dict(range=[70, 90], color="rgba(251,146,60,0.2)"),
-                    dict(range=[90, 120], color="rgba(239,68,68,0.25)"),
+                    dict(range=[0, 40], color="rgba(59,130,246,0.1)"),
+                    dict(range=[40, 70], color="rgba(250,204,21,0.12)"),
+                    dict(range=[70, 90], color="rgba(251,146,60,0.18)"),
+                    dict(range=[90, 120], color="rgba(239,68,68,0.22)"),
                 ],
-                threshold=dict(line=dict(color=DF_ORANGE, width=3), thickness=0.85, value=d_temp),
+                threshold=dict(line=dict(color=DF_COOL, width=4), thickness=0.85, value=d_temp),
             ),
         ))
         fig_g2.update_layout(
-            height=220, margin=dict(l=30, r=30, t=20, b=10),
+            height=230, margin=dict(l=30, r=30, t=20, b=10),
             paper_bgcolor="rgba(0,0,0,0)", font=dict(family="Inter"),
         )
         st.plotly_chart(fig_g2, use_container_width=True, config={'displayModeBar': False})
-        st.markdown(f'<div style="text-align:center;font-size:14px;color:{DF_ORANGE};margin-top:-8px;">52°C cooler. Full performance, no throttling.</div>', unsafe_allow_html=True)
+        st.markdown(f'<div style="text-align:center;font-size:14px;color:{DF_COOL};margin-top:-8px;font-weight:500;">52°C cooler. Full performance, no throttling.</div>', unsafe_allow_html=True)
 
     # ══════════════════════════════════════════════════════
-    #  2. HORIZONTAL COMPARISON BARS
+    #  2. HORIZONTAL COMPARISON BARS (animated)
     # ══════════════════════════════════════════════════════
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Helper: render a comparison bar pair
-    def comparison_bar(label, trad_val, diamond_val, trad_fmt, diamond_fmt, unit):
+    def comparison_bar(label, trad_val, diamond_val, trad_fmt, diamond_fmt, unit, delay_ms=0):
         max_val = max(trad_val, diamond_val, 1)
         trad_pct = (trad_val / max_val) * 100
         diamond_pct = (diamond_val / max_val) * 100
         reduction = ((trad_val - diamond_val) / trad_val * 100) if trad_val > 0 else 0
         st.markdown(f"""
-        <div style="margin-bottom:20px;">
+        <div class="df-slide-{_anim_id}" style="margin-bottom:24px;animation-delay:{delay_ms}ms !important;">
             <div style="display:flex;justify-content:space-between;align-items:baseline;">
                 <div class="df-bar-label">{label}</div>
-                <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:{DF_ORANGE};font-weight:500;">-{reduction:.0f}%</div>
+                <div class="df-pop-{_anim_id}" style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:{DF_ORANGE};font-weight:600;animation-delay:{delay_ms + 400}ms !important;">-{reduction:.0f}%</div>
             </div>
-            <div class="df-bar-track">
-                <div class="df-bar-fill" style="width:{trad_pct:.1f}%;background:rgba(34,30,30,0.15);">
+            <div class="df-bar-track" style="margin-top:6px;">
+                <div class="df-bar-fill df-bar-anim-{_anim_id}" style="--target-w:{trad_pct:.1f}%;width:{trad_pct:.1f}%;background:rgba(34,30,30,0.15);animation-delay:{delay_ms + 100}ms !important;">
                     <span style="color:rgba(34,30,30,0.5);font-size:12px;">Silicon</span>
                     <span class="df-bar-value" style="color:rgba(34,30,30,0.6);">{trad_fmt} {unit}</span>
                 </div>
             </div>
-            <div class="df-bar-track">
-                <div class="df-bar-fill" style="width:{diamond_pct:.1f}%;background:{DF_ORANGE};">
+            <div class="df-bar-track" style="margin-top:4px;">
+                <div class="df-bar-fill df-bar-anim-{_anim_id}" style="--target-w:{diamond_pct:.1f}%;width:{diamond_pct:.1f}%;background:{DF_ORANGE};animation-delay:{delay_ms + 250}ms !important;">
                     <span style="color:{DF_WHITE};font-size:12px;">Diamond</span>
                     <span class="df-bar-value" style="color:{DF_WHITE};">{diamond_fmt} {unit}</span>
                 </div>
@@ -966,68 +985,88 @@ def calculator_fragment():
 
     comparison_bar("Total Facility Power",
                    facility_kw, d_facility_kw,
-                   f"{facility_kw:,.0f}", f"{d_facility_kw:,.0f}", "kW")
+                   f"{facility_kw:,.0f}", f"{d_facility_kw:,.0f}", "kW", 0)
 
     comparison_bar("Annual CO₂ Emissions",
                    annual_co2, d_co2,
-                   f"{annual_co2:,.0f}", f"{d_co2:,.0f}", "tons")
+                   f"{annual_co2:,.0f}", f"{d_co2:,.0f}", "tons", 150)
 
     comparison_bar("Annual Water Usage",
                    annual_water, d_water,
-                   f"{annual_water:,.0f}", f"{d_water:,.0f}", "m³")
+                   f"{annual_water:,.0f}", f"{d_water:,.0f}", "m³", 300)
 
     comparison_bar("Annual Energy Consumption",
                    annual_mwh, d_annual_mwh,
-                   f"{annual_mwh:,.0f}", f"{d_annual_mwh:,.0f}", "MWh")
+                   f"{annual_mwh:,.0f}", f"{d_annual_mwh:,.0f}", "MWh", 450)
 
     # ══════════════════════════════════════════════════════
-    #  3. BIG BOLD SAVINGS MOMENT
+    #  3. BIG BOLD SAVINGS MOMENT (with counter animation)
     # ══════════════════════════════════════════════════════
     st.markdown("<br>", unsafe_allow_html=True)
+    savings_val = saved_cost / 1e6
     st.markdown(f"""
-    <div style="border-top:1px solid rgba(226,226,226,0.5);border-bottom:1px solid rgba(226,226,226,0.5);padding:40px 20px;margin:8px 0;">
-        <div class="df-savings-subtitle">Annual savings with Diamond Foundry</div>
-        <div class="df-savings-hero" style="margin-top:12px;">${saved_cost / 1e6:,.1f}M</div>
-        <div class="df-savings-subtitle" style="margin-top:4px;">in energy costs alone</div>
-        <div style="display:flex;justify-content:center;gap:40px;margin-top:28px;flex-wrap:wrap;">
-            <div style="text-align:center;">
+    <div style="border-top:2px solid {DF_ORANGE};border-bottom:2px solid {DF_ORANGE};padding:44px 20px;margin:8px 0;text-align:center;">
+        <div class="df-savings-subtitle df-slide-{_anim_id}">Annual savings with Diamond Foundry</div>
+        <div class="df-savings-hero df-hero-anim-{_anim_id}" style="margin-top:16px;">
+            <span id="df-counter-{_anim_id}">$0.0M</span>
+        </div>
+        <div class="df-savings-subtitle df-slide-{_anim_id}" style="margin-top:8px;animation-delay:200ms !important;">in energy costs alone</div>
+        <div style="display:flex;justify-content:center;gap:48px;margin-top:32px;flex-wrap:wrap;">
+            <div class="df-pop-{_anim_id}" style="text-align:center;animation-delay:300ms !important;">
                 <div class="df-impact-num">{saved_mwh:,.0f}</div>
                 <div class="df-impact-label">MWh saved</div>
             </div>
-            <div style="text-align:center;">
+            <div class="df-pop-{_anim_id}" style="text-align:center;animation-delay:400ms !important;">
                 <div class="df-impact-num">{saved_co2:,.0f}</div>
                 <div class="df-impact-label">tons CO₂ avoided</div>
             </div>
-            <div style="text-align:center;">
+            <div class="df-pop-{_anim_id}" style="text-align:center;animation-delay:500ms !important;">
                 <div class="df-impact-num">{saved_gal / 1e6:,.1f}M</div>
                 <div class="df-impact-label">gallons water saved</div>
             </div>
         </div>
     </div>
+    <script>
+    (function() {{
+        var target = {savings_val:.2f};
+        var el = document.getElementById('df-counter-{_anim_id}');
+        if (!el) return;
+        var start = 0, duration = 1200, startTime = null;
+        function ease(t) {{ return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2; }}
+        function tick(ts) {{
+            if (!startTime) startTime = ts;
+            var p = Math.min((ts - startTime) / duration, 1);
+            var val = start + (target - start) * ease(p);
+            el.textContent = '$' + val.toFixed(1) + 'M';
+            if (p < 1) requestAnimationFrame(tick);
+        }}
+        setTimeout(function() {{ requestAnimationFrame(tick); }}, 300);
+    }})();
+    </script>
     """, unsafe_allow_html=True)
 
     # ══════════════════════════════════════════════════════
-    #  4. REAL-WORLD EQUIVALENCIES
+    #  4. REAL-WORLD EQUIVALENCIES (staggered pop-in)
     # ══════════════════════════════════════════════════════
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown('<div class="df-label">What that means</div>', unsafe_allow_html=True)
 
-    equiv_homes = saved_mwh / 10.5            # avg US home ~10.5 MWh/yr
-    equiv_cars = saved_co2 / 4.6              # avg car ~4.6 tons CO₂/yr
-    equiv_pools = saved_gal / 660_000         # Olympic pool ~660k gallons
-    equiv_trees = saved_co2 / 0.022           # avg tree absorbs ~22 kg CO₂/yr
+    equiv_homes = saved_mwh / 10.5
+    equiv_cars = saved_co2 / 4.6
+    equiv_pools = saved_gal / 660_000
+    equiv_trees = saved_co2 / 0.022
 
     eq_cols = st.columns(4)
     equiv_data = [
-        (f"{equiv_cars:,.0f}", f"cars removed from the road for a year"),
-        (f"{equiv_homes:,.0f}", f"homes powered for a year"),
-        (f"{equiv_pools:,.0f}", f"Olympic swimming pools of water saved"),
-        (f"{equiv_trees / 1000:,.0f}K", f"trees worth of carbon absorption"),
+        (f"{equiv_cars:,.0f}", "cars removed from the road for a year", 100),
+        (f"{equiv_homes:,.0f}", "homes powered for a year", 200),
+        (f"{equiv_pools:,.0f}", "Olympic swimming pools of water saved", 300),
+        (f"{equiv_trees / 1000:,.0f}K", "trees worth of carbon absorption", 400),
     ]
-    for col, (num, desc) in zip(eq_cols, equiv_data):
+    for col, (num, desc, delay) in zip(eq_cols, equiv_data):
         with col:
             st.markdown(f"""
-            <div class="df-equiv-card">
+            <div class="df-equiv-card df-pop-{_anim_id}" style="animation-delay:{delay}ms !important;">
                 <div class="df-equiv-num">{num}</div>
                 <div class="df-equiv-desc">{desc}</div>
             </div>
