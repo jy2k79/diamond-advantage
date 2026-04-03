@@ -859,6 +859,65 @@ traditional silicon substrates to Diamond Foundry's single-crystal diamond techn
 </p>
 """, unsafe_allow_html=True)
 
+# ── Temperature gauges (static — outside fragment so they don't re-render) ──
+d_temp_static = PEAK_TEMP_C - TEMP_REDUCTION_C
+
+g1, g2 = st.columns(2)
+with g1:
+    st.markdown('<div class="df-temp-label">Traditional Silicon</div>', unsafe_allow_html=True)
+    fig_g1 = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=PEAK_TEMP_C,
+        number=dict(suffix="°C", font=dict(size=48, family="Inter", color="#DC2626")),
+        gauge=dict(
+            axis=dict(range=[0, 120], tickwidth=1, tickcolor="rgba(34,30,30,0.15)",
+                      tickfont=dict(size=11, color="rgba(34,30,30,0.3)")),
+            bar=dict(color="#DC2626", thickness=0.75),
+            bgcolor="rgba(226,226,226,0.2)",
+            steps=[
+                dict(range=[0, 40], color="rgba(59,130,246,0.1)"),
+                dict(range=[40, 70], color="rgba(250,204,21,0.12)"),
+                dict(range=[70, 90], color="rgba(251,146,60,0.18)"),
+                dict(range=[90, 120], color="rgba(239,68,68,0.22)"),
+            ],
+            threshold=dict(line=dict(color="#DC2626", width=4), thickness=0.85, value=PEAK_TEMP_C),
+        ),
+    ))
+    fig_g1.update_layout(
+        height=230, margin=dict(l=30, r=30, t=20, b=10),
+        paper_bgcolor="rgba(0,0,0,0)", font=dict(family="Inter"),
+    )
+    st.plotly_chart(fig_g1, use_container_width=True, config={'displayModeBar': False})
+    st.markdown('<div style="text-align:center;font-size:14px;color:#DC2626;margin-top:-8px;font-weight:500;">Danger zone. Chips throttle above 90°C.</div>', unsafe_allow_html=True)
+
+with g2:
+    st.markdown('<div class="df-temp-label">Diamond Foundry SCD</div>', unsafe_allow_html=True)
+    fig_g2 = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=d_temp_static,
+        number=dict(suffix="°C", font=dict(size=48, family="Inter", color=DF_COOL)),
+        gauge=dict(
+            axis=dict(range=[0, 120], tickwidth=1, tickcolor="rgba(34,30,30,0.15)",
+                      tickfont=dict(size=11, color="rgba(34,30,30,0.3)")),
+            bar=dict(color=DF_COOL, thickness=0.75),
+            bgcolor="rgba(226,226,226,0.2)",
+            steps=[
+                dict(range=[0, 40], color="rgba(59,130,246,0.1)"),
+                dict(range=[40, 70], color="rgba(250,204,21,0.12)"),
+                dict(range=[70, 90], color="rgba(251,146,60,0.18)"),
+                dict(range=[90, 120], color="rgba(239,68,68,0.22)"),
+            ],
+            threshold=dict(line=dict(color=DF_COOL, width=4), thickness=0.85, value=d_temp_static),
+        ),
+    ))
+    fig_g2.update_layout(
+        height=230, margin=dict(l=30, r=30, t=20, b=10),
+        paper_bgcolor="rgba(0,0,0,0)", font=dict(family="Inter"),
+    )
+    st.plotly_chart(fig_g2, use_container_width=True, config={'displayModeBar': False})
+    st.markdown(f'<div style="text-align:center;font-size:14px;color:{DF_COOL};margin-top:-8px;font-weight:500;">52°C cooler. Full performance, no throttling.</div>', unsafe_allow_html=True)
+
+st.markdown("<br>", unsafe_allow_html=True)
 
 # Note: Streamlit commits slider values only on mouse-up (or touch-end).
 # @st.fragment ensures the calculator re-renders quickly on release.
@@ -866,7 +925,7 @@ traditional silicon substrates to Diamond Foundry's single-crystal diamond techn
 
 @st.fragment
 def calculator_fragment():
-    """Calculator with gauges, comparison bars, equivalencies, and bold savings."""
+    """Calculator with sliders, impact cards, savings bar."""
 
     # ── Controls ──
     c1, c2, c3 = st.columns(3)
@@ -929,66 +988,6 @@ def calculator_fragment():
         }}
     </style>
     """, unsafe_allow_html=True)
-
-    # ══════════════════════════════════════════════════════
-    #  1. TEMPERATURE GAUGES
-    # ══════════════════════════════════════════════════════
-    st.markdown("<br>", unsafe_allow_html=True)
-    g1, g2 = st.columns(2)
-
-    with g1:
-        st.markdown('<div class="df-temp-label">Traditional Silicon</div>', unsafe_allow_html=True)
-        fig_g1 = go.Figure(go.Indicator(
-            mode="gauge+number",
-            value=PEAK_TEMP_C,
-            number=dict(suffix="°C", font=dict(size=48, family="Inter", color="#DC2626")),
-            gauge=dict(
-                axis=dict(range=[0, 120], tickwidth=1, tickcolor="rgba(34,30,30,0.15)",
-                          tickfont=dict(size=11, color="rgba(34,30,30,0.3)")),
-                bar=dict(color="#DC2626", thickness=0.75),
-                bgcolor="rgba(226,226,226,0.2)",
-                steps=[
-                    dict(range=[0, 40], color="rgba(59,130,246,0.1)"),
-                    dict(range=[40, 70], color="rgba(250,204,21,0.12)"),
-                    dict(range=[70, 90], color="rgba(251,146,60,0.18)"),
-                    dict(range=[90, 120], color="rgba(239,68,68,0.22)"),
-                ],
-                threshold=dict(line=dict(color="#DC2626", width=4), thickness=0.85, value=PEAK_TEMP_C),
-            ),
-        ))
-        fig_g1.update_layout(
-            height=230, margin=dict(l=30, r=30, t=20, b=10),
-            paper_bgcolor="rgba(0,0,0,0)", font=dict(family="Inter"),
-        )
-        st.plotly_chart(fig_g1, use_container_width=True, config={'displayModeBar': False})
-        st.markdown('<div style="text-align:center;font-size:14px;color:#DC2626;margin-top:-8px;font-weight:500;">Danger zone. Chips throttle above 90°C.</div>', unsafe_allow_html=True)
-
-    with g2:
-        st.markdown('<div class="df-temp-label">Diamond Foundry SCD</div>', unsafe_allow_html=True)
-        fig_g2 = go.Figure(go.Indicator(
-            mode="gauge+number",
-            value=d_temp,
-            number=dict(suffix="°C", font=dict(size=48, family="Inter", color=DF_COOL)),
-            gauge=dict(
-                axis=dict(range=[0, 120], tickwidth=1, tickcolor="rgba(34,30,30,0.15)",
-                          tickfont=dict(size=11, color="rgba(34,30,30,0.3)")),
-                bar=dict(color=DF_COOL, thickness=0.75),
-                bgcolor="rgba(226,226,226,0.2)",
-                steps=[
-                    dict(range=[0, 40], color="rgba(59,130,246,0.1)"),
-                    dict(range=[40, 70], color="rgba(250,204,21,0.12)"),
-                    dict(range=[70, 90], color="rgba(251,146,60,0.18)"),
-                    dict(range=[90, 120], color="rgba(239,68,68,0.22)"),
-                ],
-                threshold=dict(line=dict(color=DF_COOL, width=4), thickness=0.85, value=d_temp),
-            ),
-        ))
-        fig_g2.update_layout(
-            height=230, margin=dict(l=30, r=30, t=20, b=10),
-            paper_bgcolor="rgba(0,0,0,0)", font=dict(family="Inter"),
-        )
-        st.plotly_chart(fig_g2, use_container_width=True, config={'displayModeBar': False})
-        st.markdown(f'<div style="text-align:center;font-size:14px;color:{DF_COOL};margin-top:-8px;font-weight:500;">52°C cooler. Full performance, no throttling.</div>', unsafe_allow_html=True)
 
     # ══════════════════════════════════════════════════════
     #  2. THE WIN — pure emotional storytelling
