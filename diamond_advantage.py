@@ -49,6 +49,12 @@ def logo_b64(path):
 # THIN-LINE SVG ICONS  (replace emojis — monoline, DF-style)
 # ──────────────────────────────────────────────────────────────
 
+def src_tip(text, light=False):
+    """Inline ⓘ tooltip with source citation. Use light=True on dark backgrounds."""
+    cls = "df-src df-src-light" if light else "df-src"
+    return f'<span class="{cls}">i<span class="df-tip">{text}</span></span>'
+
+
 def svg_icon(name, size=32, color=DF_BLACK):
     """Minimal single-stroke SVG icons matching df.com's clean aesthetic."""
     icons = {
@@ -273,6 +279,75 @@ st.markdown(f"""
         text-decoration: none;
         letter-spacing: -0.03em;
         background: rgba(226,226,226,0.5);
+    }}
+
+    /* ── Source tooltip (ⓘ icon with hover/tap popover) ── */
+    .df-src {{
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 16px;
+        height: 16px;
+        font-size: 10px;
+        font-weight: 500;
+        line-height: 1;
+        color: rgba(34,30,30,0.25);
+        border: 1px solid rgba(34,30,30,0.15);
+        border-radius: 50%;
+        cursor: help;
+        position: relative;
+        vertical-align: super;
+        margin-left: 4px;
+        font-family: 'Inter', sans-serif !important;
+        font-style: normal;
+    }}
+    .df-src:hover, .df-src:active {{
+        color: {DF_ORANGE};
+        border-color: {DF_ORANGE};
+    }}
+    .df-src .df-tip {{
+        visibility: hidden;
+        opacity: 0;
+        position: absolute;
+        bottom: calc(100% + 8px);
+        left: 50%;
+        transform: translateX(-50%);
+        background: {DF_BLACK};
+        color: rgba(255,255,255,0.75);
+        font-size: 11px;
+        font-weight: 400;
+        line-height: 1.5;
+        padding: 10px 14px;
+        border-radius: 8px;
+        width: 240px;
+        white-space: normal;
+        z-index: 1000;
+        pointer-events: none;
+        transition: opacity 0.15s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }}
+    .df-src .df-tip::after {{
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 5px solid transparent;
+        border-top-color: {DF_BLACK};
+    }}
+    .df-src:hover .df-tip, .df-src:active .df-tip {{
+        visibility: visible;
+        opacity: 1;
+    }}
+
+    /* On dark backgrounds, invert tooltip icon color */
+    .df-src-light {{
+        color: rgba(255,255,255,0.3);
+        border-color: rgba(255,255,255,0.2);
+    }}
+    .df-src-light:hover, .df-src-light:active {{
+        color: {DF_ORANGE};
+        border-color: {DF_ORANGE};
     }}
 
     /* ── CTA link (df.com "Learn more →" style) ── */
@@ -760,17 +835,21 @@ the most thermally conductive material on Earth. Grown from captured methane gre
 st.markdown("<br>", unsafe_allow_html=True)
 hero_cols = st.columns(4)
 hero_data = [
-    ("17,200×", "Semiconductor figure of merit vs silicon"),
-    ("2,200+", "W/mK thermal conductivity"),
-    ("52°C", "Chip temperature reduction"),
-    ("3.7×", "Higher power density"),
+    ("17,200×", "Semiconductor figure of merit vs silicon",
+     src_tip("Baliga&rsquo;s figure of merit (BFOM). Diamond vs silicon. Source: DF Master Deck, Feb 2024.")),
+    ("2,200+", "W/mK thermal conductivity",
+     src_tip("Single-crystal diamond thermal conductivity at room temperature. Source: DF Master Deck; corroborated by Element Six published data.")),
+    ("52°C", "Chip temperature reduction",
+     src_tip("Measured junction temperature drop when replacing silicon substrate with SCD. Source: DF Master Deck, Feb 2024.")),
+    ("3.7×", "Higher power density",
+     src_tip("34 W/mm² enabled by diamond vs ~9 W/mm² on silicon. Source: DF Master Deck, Feb 2024.")),
 ]
-for col, (val, label) in zip(hero_cols, hero_data):
+for col, (val, label, tip) in zip(hero_cols, hero_data):
     with col:
         st.markdown(f"""
         <div style="padding:12px 0;">
             <div class="df-stat-num">{val}</div>
-            <div class="df-stat-label">{label}</div>
+            <div class="df-stat-label">{label} {tip}</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -785,19 +864,22 @@ st.markdown('<div class="df-label">The Problem</div>', unsafe_allow_html=True)
 st.markdown("## The AI Infrastructure Crisis")
 
 crisis_cols = st.columns(3)
+_src_460 = src_tip("IEA Electricity 2024 report. AI subset estimated at ~40% of total DC load.")
+_src_b200 = src_tip("NVIDIA B200 TDP: 1,000W. H100: 700W. Source: NVIDIA product specs, 2024.")
+_src_water = src_tip("Water usage: Shaolei Ren, UC Riverside (2023). CO₂: Strubell et al., &lsquo;Energy and Policy Considerations for Deep Learning&rsquo; (2019).")
 crisis_data = [
     ("bolt", "Power Hungry",
-     "Global data centers consumed ~460 TWh in 2024. "
+     f"Global data centers consumed ~460 TWh in 2024. {_src_460} "
      "Roughly 2% of global electricity. AI workloads are projected to push this past "
      "1,000 TWh by 2028."),
     ("thermometer", "Heat Wall",
-     "Modern AI chips like NVIDIA's B200 push 1,000W per GPU. "
+     f"Modern AI chips like NVIDIA's B200 push 1,000W per GPU. {_src_b200} "
      "Traditional silicon substrates can't dissipate this heat fast enough. "
      "Chips throttle. Energy is wasted on cooling."),
     ("droplet", "Water & Carbon Cost",
-     "A single large AI data center can consume 5+ million gallons "
-     "of water daily for cooling. Training one large AI model "
-     "can exceed 300 tons of CO₂."),
+     f"A single large AI data center can consume 5+ million gallons "
+     f"of water daily for cooling. Training one large AI model "
+     f"can exceed 300 tons of CO₂. {_src_water}"),
 ]
 for col, (icon, title, desc) in zip(crisis_cols, crisis_data):
     with col:
@@ -837,9 +919,10 @@ fig_thermal.update_layout(
 )
 st.plotly_chart(fig_thermal, use_container_width=True, config={'displayModeBar': False})
 
-st.markdown("""
+_src_thermal = src_tip("Room-temperature thermal conductivity values. Diamond: &gt;2,200 W/mK (DF Master Deck). Si: 150, Cu: 380, SiC: 490, GaN: 200 W/mK (standard literature values).")
+st.markdown(f"""
 <p class="df-chart-label">
-    Diamond conducts heat 14.7× better than silicon and 5.8× better than copper.
+    Diamond conducts heat 14.7× better than silicon and 5.8× better than copper. {_src_thermal}
 </p>
 """, unsafe_allow_html=True)
 
@@ -888,7 +971,7 @@ with g1:
         paper_bgcolor="rgba(0,0,0,0)", font=dict(family="Inter"),
     )
     st.plotly_chart(fig_g1, use_container_width=True, config={'displayModeBar': False})
-    st.markdown('<div style="text-align:center;font-size:14px;color:#DC2626;margin-top:-8px;font-weight:500;">Danger zone. Chips throttle above 90°C.</div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="text-align:center;font-size:14px;color:#DC2626;margin-top:-8px;font-weight:500;">Danger zone. Chips throttle above 90°C. {src_tip("Typical GPU thermal throttle threshold: 83–95°C. Source: NVIDIA thermal design guidelines.")}</div>', unsafe_allow_html=True)
 
 with g2:
     st.markdown('<div class="df-temp-label">Diamond Foundry SCD</div>', unsafe_allow_html=True)
@@ -915,9 +998,18 @@ with g2:
         paper_bgcolor="rgba(0,0,0,0)", font=dict(family="Inter"),
     )
     st.plotly_chart(fig_g2, use_container_width=True, config={'displayModeBar': False})
-    st.markdown(f'<div style="text-align:center;font-size:14px;color:{DF_COOL};margin-top:-8px;font-weight:500;">52°C cooler. Full performance, no throttling.</div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="text-align:center;font-size:14px;color:{DF_COOL};margin-top:-8px;font-weight:500;">52°C cooler. Full performance, no throttling. {src_tip("52°C reduction measured with SCD substrate. Source: DF Master Deck, Feb 2024.")}</div>', unsafe_allow_html=True)
 
-st.markdown("<br>", unsafe_allow_html=True)
+# Visual separator + breathing room before sliders
+st.markdown(f"""
+<div style="margin:48px 0 16px 0;border-top:1px solid rgba(226,226,226,0.5);padding-top:36px;">
+    <div class="df-label">Configure Your Data Center</div>
+    <div style="font-size:17px;color:{DF_BODY};max-width:520px;margin-bottom:24px;">
+        Adjust the sliders and watch the savings update instantly.
+        {src_tip("Calculator assumptions: 42% cooling reduction (derived from diamond thermal advantage — DF Master Deck), 0.385 kg CO₂/kWh (EPA eGRID US avg, 2024), 1.8 m³ water/MWh (DOE evaporative cooling avg), $65/MWh wholesale energy cost (EIA, 2024).")}
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 # Note: Streamlit commits slider values only on mouse-up (or touch-end).
 # @st.fragment ensures the calculator re-renders quickly on release.
@@ -931,17 +1023,17 @@ def calculator_fragment():
     c1, c2, c3 = st.columns(3)
     with c1:
         num_gpus = st.slider("Number of AI GPUs", 1000, 100000, 20000, 1000,
-                             format="%d", help="Typical large cluster: 10,000–50,000 GPUs")
+                             format="%d", help="Typical large cluster: 10k–50k GPUs. Meta's Llama 3 trained on 16,384 H100s. xAI's Colossus: 100k H100s. (Source: company announcements, 2024)")
     with c2:
         power_per_gpu = st.slider("Power per GPU (Watts)", 300, 1500, 700, 50,
-                                  format="%dW", help="A100: ~400W, H100: ~700W, B200: ~1000W")
+                                  format="%dW", help="A100: ~400W, H100: ~700W, B200: ~1,000W, GB200 NVL72: ~1,200W per GPU equivalent. (Source: NVIDIA product specs)")
     with c3:
         pue = st.selectbox("Cooling Efficiency (PUE)", [
             ("Air-cooled (PUE 1.6)", 1.6),
             ("Efficient air (PUE 1.3)", 1.3),
             ("Liquid-cooled (PUE 1.15)", 1.15),
         ], format_func=lambda x: x[0], index=0,
-           help="Power Usage Effectiveness. How much overhead goes to cooling.")
+           help="Power Usage Effectiveness — total facility power ÷ IT equipment power. Industry avg: 1.58. Google: 1.10. (Source: Uptime Institute Global Survey, 2023)")
         pue_val = pue[1]
 
     # ── Calculations ──
@@ -1000,9 +1092,8 @@ def calculator_fragment():
     pct_water    = (saved_water / annual_water * 100) if annual_water > 0 else 0
 
     # ── Hero savings number ──
-    st.markdown("<br>", unsafe_allow_html=True)
     st.markdown(f"""
-    <div style="text-align:center;padding:48px 0 12px 0;">
+    <div style="text-align:center;padding:56px 0 16px 0;margin-top:40px;border-top:1px solid rgba(226,226,226,0.4);">
         <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:{DF_BODY};text-transform:uppercase;letter-spacing:0.05em;
                     animation:dfSlide{_a} 0.4s ease-out both;">
             Switch to diamond. Save this much every year.
@@ -1018,7 +1109,7 @@ def calculator_fragment():
     """, unsafe_allow_html=True)
 
     # ── 4 visual impact cards with icons + animated ring ──
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-top:40px;'></div>", unsafe_allow_html=True)
 
     # SVG circular progress ring helper
     def ring_svg(pct, color=DF_ORANGE, size=72, stroke=5):
@@ -1047,11 +1138,15 @@ def calculator_fragment():
 
     ec1, ec2, ec3, ec4 = st.columns(4)
 
+    _src_car = src_tip("Avg passenger vehicle: 4.6 metric tons CO₂/year. Source: EPA, 2024.")
+    _src_home = src_tip("Avg US household: 10,500 kWh/year. Source: EIA Residential Energy Survey, 2023.")
+    _src_pool = src_tip("Olympic swimming pool: ~660,000 gallons (2,500 m³). Source: FINA standards.")
+    _src_tree = src_tip("Avg tree absorbs ~22 kg (0.022 metric tons) CO₂/year. Source: European Environment Agency.")
     card_items = [
-        (ec1, "car",  f"{equiv_cars:,.0f}",          "cars removed",   "from the road for a year",     ring_cars_pct,  0.2),
-        (ec2, "home", f"{equiv_homes:,.0f}",          "homes powered",  "with clean energy for a year", ring_homes_pct, 0.3),
-        (ec3, "pool", f"{equiv_pools:,.0f}",          "Olympic pools",  "of cooling water saved",       ring_pools_pct, 0.4),
-        (ec4, "tree", f"{equiv_trees / 1000:,.0f}K",  "trees planted",  "worth of CO₂ absorbed",        ring_trees_pct, 0.5),
+        (ec1, "car",  f"{equiv_cars:,.0f}",          f"cars removed {_src_car}",   "from the road for a year",     ring_cars_pct,  0.2),
+        (ec2, "home", f"{equiv_homes:,.0f}",          f"homes powered {_src_home}",  "with clean energy for a year", ring_homes_pct, 0.3),
+        (ec3, "pool", f"{equiv_pools:,.0f}",          f"Olympic pools {_src_pool}",  "of cooling water saved",       ring_pools_pct, 0.4),
+        (ec4, "tree", f"{equiv_trees / 1000:,.0f}K",  f"trees planted {_src_tree}",  "worth of CO₂ absorbed",        ring_trees_pct, 0.5),
     ]
     for (col, icon_name, num, headline, subtitle, ring_pct, delay) in card_items:
         with col:
@@ -1070,11 +1165,12 @@ def calculator_fragment():
             """, unsafe_allow_html=True)
 
     # ── Savings energy bar (absolute-sized, grows with sliders) ──
+    st.markdown("<div style='margin-top:48px;'></div>", unsafe_allow_html=True)
     max_possible_savings = max_mwh_saved
     savings_pct = min((saved_mwh / max_possible_savings) * 100, 100) if max_possible_savings > 0 else 0
 
     st.markdown(f"""
-    <div style="margin:36px 0 16px 0;animation:dfSlide{_a} 0.5s ease-out 0.6s both;">
+    <div style="margin:24px 0 16px 0;animation:dfSlide{_a} 0.5s ease-out 0.6s both;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
             <div class="df-bar-label">Your impact potential</div>
             <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:{DF_ORANGE};font-weight:600;
@@ -1117,17 +1213,20 @@ transform a climate problem into the world's most advanced thermal substrate.
 """, unsafe_allow_html=True)
 
 # Process steps — using st.columns for reliable rendering
+_src_reactor = src_tip("10th-generation proprietary plasma reactors. 150× productivity vs Gen 1. Source: DF Master Deck, Feb 2024.", light=True)
+_src_hetero = src_tip("Patented heteroepitaxial growth process. Enables large-area SCD on non-diamond substrates. Source: DF Master Deck.", light=True)
+_src_147 = src_tip("2,200 ÷ 150 = 14.7×. Diamond vs silicon thermal conductivity ratio. Source: DF Master Deck.", light=True)
 steps = [
     ("factory", "Methane Capture",
      "CH₄ greenhouse gas sourced as carbon feedstock. A climate liability becomes raw material."),
     ("zap", "Plasma Reactor",
-     "10th-gen reactors at 150× productivity. Methane broken into atomic carbon."),
+     f"10th-gen reactors at 150× productivity. {_src_reactor} Methane broken into atomic carbon."),
     ("diamond", "Crystal Growth",
-     "Carbon atoms self-assemble into single-crystal diamond. Patented heteroepitaxy."),
+     f"Carbon atoms self-assemble into single-crystal diamond. Patented heteroepitaxy. {_src_hetero}"),
     ("layers", "Wafer Finishing",
      "Polished to angstrom-level flatness. Atomically bonded to silicon or SiC."),
     ("cpu", "AI-Ready Substrate",
-     "SCD wafer conducts heat 14.7× better than silicon. Next-gen AI chips, enabled."),
+     f"SCD wafer conducts heat 14.7× better than silicon. {_src_147} Next-gen AI chips, enabled."),
 ]
 
 step_cols = st.columns(5)
@@ -1155,15 +1254,15 @@ st.markdown(f"""
     <div style="display:flex;justify-content:center;gap:56px;margin-top:28px;flex-wrap:wrap;">
         <div style="text-align:center;">
             <div style="font-size:32px;font-weight:400;color:{DF_WHITE};letter-spacing:-0.03em;">97%</div>
-            <div class="df-impact-label">of global SCD capacity</div>
+            <div class="df-impact-label">of global SCD capacity {src_tip("DF holds 97% of global single-crystal diamond wafer production capacity. Source: DF Master Deck, Feb 2024.", light=True)}</div>
         </div>
         <div>
             <div style="font-size:32px;font-weight:400;color:{DF_WHITE};letter-spacing:-0.03em;">10th Gen</div>
-            <div class="df-impact-label">proprietary reactors</div>
+            <div class="df-impact-label">proprietary reactors {src_tip("10th-generation plasma CVD reactors. Each generation improves yield, speed, and crystal quality. Source: DF Master Deck.", light=True)}</div>
         </div>
         <div>
             <div style="font-size:32px;font-weight:400;color:{DF_WHITE};letter-spacing:-0.03em;">100%</div>
-            <div class="df-impact-label">green energy powered</div>
+            <div class="df-impact-label">green energy powered {src_tip("Wenatchee WA facility powered by hydroelectric. Spain facilities powered by solar. Source: DF Master Deck, Feb 2024.", light=True)}</div>
         </div>
     </div>
 </div>
@@ -1182,6 +1281,7 @@ st.markdown(f"""
 <p class="df-body" style="margin-bottom:32px;">
 The world is building AI infrastructure at an unprecedented pace. Here's what it would mean
 if Diamond Foundry's SCD technology were deployed across the global AI data center fleet.
+{src_tip("Global estimates based on IEA 2024 data center energy figures (460 TWh), 40% AI workload fraction (Goldman Sachs, 2024), and 35% cooling overhead (DOE). Same calculator assumptions apply.")}
 </p>
 """, unsafe_allow_html=True)
 
@@ -1270,16 +1370,19 @@ st.markdown("---")
 st.markdown('<div class="df-label">The Vision</div>', unsafe_allow_html=True)
 st.markdown("## Diamond Foundry's Three-Decade Master Plan")
 
+_src_26pct = src_tip("26% market share of rough diamonds and 26% net profit margin. Source: DF Master Deck, Feb 2024.")
+_src_200m = src_tip("~$200M revenue (2023), 26% net profit margin. Infineon partnership. Manufacturing in Wenatchee WA, Trujillo &amp; Zaragoza Spain. Source: DF Master Deck, Feb 2024.")
+_src_17k = src_tip("Baliga&rsquo;s Figure of Merit: diamond is 17,200× silicon. Full diamond semiconductor would unlock this vs current thermal-only advantage. Source: DF Master Deck.")
 timeline = [
     ("2013", "Introduce sustainably created diamond wherever mined diamond has been able to go",
-     "Diamond Foundry launched with lab-grown gems. Proving that diamonds could be created "
-     "from methane using green energy, with zero mining. Today: 26% market share of rough diamonds."),
+     f"Diamond Foundry launched with lab-grown gems. Proving that diamonds could be created "
+     f"from methane using green energy, with zero mining. Today: 26% market share of rough diamonds. {_src_26pct}"),
     ("2023", "Introduce single-crystal diamond wafers and put a diamond behind every chip",
-     "World's first SCD wafers created. $200M+ revenue with 26% net profit margin. "
-     "Partnerships with Infineon. Global manufacturing across USA, Spain, and Germany."),
+     f"World's first SCD wafers created. $200M+ revenue with 26% net profit margin. {_src_200m} "
+     f"Partnerships with Infineon. Global manufacturing across USA, Spain, and Germany."),
     ("2033", "Introduce diamond as a semiconductor and deliver on its 17,200× merit over silicon",
-     "The ultimate vision: diamond-based semiconductor devices. Not just thermal substrates, "
-     "but active diamond electronics. Unlocking the full 17,200× semiconductor figure of merit."),
+     f"The ultimate vision: diamond-based semiconductor devices. Not just thermal substrates, "
+     f"but active diamond electronics. Unlocking the full 17,200× semiconductor figure of merit. {_src_17k}"),
 ]
 for year, headline, desc in timeline:
     st.markdown(f"""
@@ -1302,7 +1405,7 @@ st.markdown(f"""
              style="width:260px;opacity:0.4;filter:invert(1);" />
     </div>
     <div style="font-size:14px;color:rgba(255,255,255,0.3);line-height:1.7;">
-        Empowering mega-tech industry to shape the future.<br>
+        The Diamond Shaping the Future.<br>
         <a href="https://www.df.com" target="_blank"
            style="color:{DF_ORANGE};text-decoration:none;">df.com</a>
     </div>
